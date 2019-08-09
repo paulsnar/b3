@@ -1,0 +1,61 @@
+$text-color: hsl(0, 0, 5%);
+$link-color: scale-color($text-color, $lightness: 5%);
+
+@font-face {
+  font-family: 'Charter';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Charter'), url('/style/charter/400.woff') format('woff');
+}
+@font-face {
+  font-family: 'Charter';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Charter'), url('/style/charter/400i.woff') format('woff');
+}
+@font-face {
+  font-family: 'Charter';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Charter'), url('/style/charter/700.woff') format('woff');
+}
+@font-face {
+  font-family: 'Charter';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Charter'), url('/style/charter/700i.woff') format('woff');
+}
+
+body {
+  color: $text-color;
+  line-height: 1.25;
+  font-family: Charter, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: scale-color($background-color, $lightness: -25%);
+
+  // display: inline-block;
+  // height: 1.1em;
+  // border-bottom: 0.1em solid scale-color($background-color, $lightness: -20%);
+}
+a:visited {
+  text-decoration-style: dotted;
+}
+a:hover {
+  background-color: scale-color($background-color, $lightness: -7.5%);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: sans-serif;
+  font-size: 1.15em;
+}
+
+.text {
+  margin: {
+    top: 0;
+    bottom: 0.5em;
+  }
+  font-size: 1.15em;
+}

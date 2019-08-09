@@ -1,0 +1,13 @@
+{
+  "name": "paulsnar/blog",
+  "require": {
+    "league/commonmark": "^1.0",
+    "twig/twig": "^2.11"
+  },
+  "authors": [ { "name": "paulsnar", "email": "paulsnar@paulsnar.lv" } ],
+  "autoload": {
+    "psr-4": {
+      "PN\\Blog\\": "src/"
+    }
+  }
+}
