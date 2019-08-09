@@ -2,7 +2,8 @@
   "name": "paulsnar/blog",
   "require": {
     "league/commonmark": "^1.0",
-    "twig/twig": "^2.11"
+    "twig/twig": "^2.11",
+    "league/commonmark-ext-smartpunct": "^1.0"
   },
   "authors": [ { "name": "paulsnar", "email": "paulsnar@paulsnar.lv" } ],
   "autoload": {
