@@ -3,7 +3,8 @@ namespace PN\Blog\Markdown;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Block\Element\{Heading, Paragraph};
 use League\CommonMark\Event\DocumentParsedEvent;
-use PN\Blog\Markdown\Footnote\{Content, MergedContent};
+use PN\Blog\Markdown\Footnote\{Content, ContentParagraphContainer,
+  MergedContent};
 
 class DocumentPostprocessor
 {
@@ -32,46 +33,45 @@ class DocumentPostprocessor
       $node = $event->getNode();
 
       if ($node instanceof Content) {
-        $parent = $node->parent();
-        $siblings = $parent->children();
-
-        $previous = null;
-        $next = null;
-
-        while ($siblings[0] !== $node) {
-          $previous = array_shift($siblings);
-        }
-
-        $items = [ ];
-        while ($siblings[0] !== null && $siblings[0] instanceof Content) {
-          $items[] = array_shift($siblings);
-        }
-
-        if (count($siblings) > 0) {
-          $next = array_shift($siblings);
-        }
-
-        if (count($items) > 0) {
-          foreach ($items as $item) {
-            $item->detach();
-          }
-          $merged = new MergedContent($items);
-
-          if ($previous !== null) {
-            $previous->insertAfter($merged);
-          } else if ($next !== null) {
-            $next->insertBefore($merged);
-          }
-
-          $walker->resumeAt($merged, false);
-        }
+        $this->amalgamateFootnotes($walker, $event, $node);
       } else if ($node instanceof Heading) {
         self::setClass($node, 'heading');
       } else if (
           $node instanceof Paragraph &&
           ! ($node instanceof Footnote\Content)) {
-        self::setClass($node, 'text text-block__text');
+        self::setClass($node, 'text post-paragraph');
       }
     }
+  }
+
+  protected function amalgamateFootnotes($walker, $event, $node)
+  {
+    $previous = $node->previous();
+
+    $adjacentFootnotes = [$node];
+    $sibling = $node->next();
+    while ($sibling instanceof Content) {
+      $adjacentFootnotes[] = $sibling;
+      $sibling = $sibling->next();
+    }
+
+    if (count($adjacentFootnotes) > 0) {
+      $mergedNode = new MergedContent($adjacentFootnotes);
+      $node->replaceWith($mergedNode);
+      $node = $mergedNode;
+
+      array_shift($adjacentFootnotes);
+      foreach ($adjacentFootnotes as $footnote) {
+        $footnote->detach();
+      }
+    }
+
+    if ($previous !== null && $previous instanceof Paragraph) {
+      $node->detach();
+      $node = new ContentParagraphContainer($previous, $node);
+      $previous->replaceWith($node);
+    }
+
+    $walker->resumeAt($node, false);
   }
 }

@@ -31,6 +31,6 @@ class ContentRenderer implements BlockRendererInterface
     }
 
     return new HtmlElement(
-      'aside', ['class' => 'text-block__sidenote'], $children);
+      'aside', ['class' => 'post-sidenote'], $children);
   }
 }

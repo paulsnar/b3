@@ -18,6 +18,9 @@ class Extension implements ExtensionInterface
         $contentRenderer = new Footnote\ContentRenderer())
       ->addBlockRenderer(Footnote\MergedContent::class, $contentRenderer)
 
+      ->addBlockRenderer(Footnote\ContentParagraphContainer::class,
+        new Footnote\ContentParagraphRenderer())
+
       ->addEventListener(DocumentParsedEvent::class,
         [new DocumentPostprocessor(), 'onDocumentParsed']);
   }
