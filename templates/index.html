@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="alternate" type="application/json" title="JSON Feed"
+    href="{{ url('/feed.json') }}">
+{% endblock %}
+
+{% block title -%} paulsnar's blog {%- endblock %}
+
+{% block content %}
+  <main class="front page">
+    {% for item in items %}
+      {% if item.is == 'blog_post' %}
+        {{ include('index/post.html', {post: item.item}) }}
+      {% endif %}
+    {% endfor %}
+  </main>
+{% endblock %}

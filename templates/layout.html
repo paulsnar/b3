@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<link rel="stylesheet" href="style.css">
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url('/style.css') }}">
+<link rel="alternate stylesheet" title="Dark Mode"
+  href="{{ url('/style-darkmode.css') }}">
 {% block content %}{% endblock %}

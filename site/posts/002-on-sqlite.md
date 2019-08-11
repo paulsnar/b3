@@ -1,11 +1,10 @@
 ---
 type = "blog"
 title = "On SQLite"
-date = 2019-08-07T16:00+03
+date = "2019-08-07 16:00:00 +03:00"
 state = "draft"
+summary = "Why SQLite isn't as bad as it tends to be called."
 ---
-
-# On SQLite
 
 > Software engineering appears to be [fueled mostly by FUD][hn-harmful].
 

@@ -1,9 +1,8 @@
 ---
-title = "Mirroring Github"
+title = "Mirroring Gitea repositories to GitHub"
 date = "2019-08-08 22:15:00 +03:00"
+slug = "gitea-mirroring"
 ---
-
-# Mirroring Gitea repositories to other hosts
 
 [Gitea](https://gitea.io) is pretty neat if you want a self-hosted GitHub
 alternative for most part, even though it is sometimes a bit light on some

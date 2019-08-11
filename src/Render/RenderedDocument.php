@@ -1,26 +1,19 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Render;
-use PN\B3\Core\Document;
 
 /**
- * RenderedDocument represents a document that has an attached rendered
- * representation.
- *
- * Note that the rendered content is not wrapped within a template but only
- * represents the conversion of the actual content into an HTML partial.
- *
- * Instances of this object should be created only by the Renderer.
+ * RenderedDocument represents a full HTML document that has been rendered from
+ * a RenderableInterface implementation.
  */
-class RenderedDocument extends Document
+class RenderedDocument
 {
-  public $renderedContent;
+  public $origin, $content;
 
   public function __construct(
-    string $content,
-    array $metadata,
-    string $renderedContent
+    RenderableInterface $origin,
+    string $content
   ) {
-    parent::__construct($content, $metadata);
-    $this->renderedContent = $renderedContent;
+    $this->origin = $origin;
+    $this->content = $content;
   }
 }

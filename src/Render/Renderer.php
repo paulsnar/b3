@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Render;
-use PN\B3\Core\Document;
+use PN\B3\Core\{Document, Page};
 use PN\B3\Markdown\RendererInterface as MarkdownRendererInterface;
-use PN\B3\Template\RendererInterface as TemplateRendererInterface;
+use PN\B3\Template\{RendererInterface as TemplateRendererInterface,
+  TemplateNotFoundException};
 
-class Renderer
+class Renderer implements RendererInterface
 {
   protected $markdownRenderer, $templateRenderer;
 
@@ -16,34 +17,18 @@ class Renderer
     $this->templateRenderer = $templateRenderer;
   }
 
-  public function renderDocument(Document $doc): RenderedDocument
+  public function renderMarkdown(string $markdown): string
   {
-    try {
-      $renderedContent = $this->markdownRenderer->render($doc->content);
-    } catch (\Throwable $err) {
-      throw new RenderException(
-        $err->getMessage(), $doc->metadata['file_path'], $err);
-    }
-
-    return new RenderedDocument(
-      $doc->content, $doc->metadata, $renderedContent);
+    return $this->markdownRenderer->render($markdown);
   }
 
-  public function renderPage(Document $doc): Page
+  public function renderTemplate(string $name, array $context = [ ]): string
   {
-    if ( ! ($doc instanceof RenderedDocument)) {
-      $doc = $this->renderDocument($doc);
-    }
+    return $this->templateRenderer->render($name, $context);
+  }
 
-    try {
-      $pageContent = $this->templateRenderer->render('post.html', [
-        'document' => $doc,
-      ]);
-    } catch (\Throwable $err) {
-      throw new RenderException(
-        $err->getMessage(), $doc->metadata['file_path'], $err);
-    }
-
-    return new Page($doc, $pageContent);
+  public function render(RenderableInterface $item): RenderedDocument
+  {
+    return $item->renderSelf($this);
   }
 }

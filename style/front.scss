@@ -1,0 +1,25 @@
+.front {
+  width: 95vw;
+  max-width: 40em;
+  margin: 0 auto;
+
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+
+.front__item {
+  margin: 0.3rem 0;
+}
+
+a.front__item {
+  text-decoration: none;
+}
+
+.front-blogpost__title {
+  font-weight: bold;
+}
+
+.front-blogpost__date {
+  font-style: italic;
+}
