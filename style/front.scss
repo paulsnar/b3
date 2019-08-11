@@ -8,6 +8,17 @@
   align-items: flex-start;
 }
 
+.front-group {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+
+.front-group__scope {
+  font-size: 125%;
+  color: scale-color($text-color, $lightness: 25%);
+}
+
 .front__item {
   margin: 0.3rem 0;
 }

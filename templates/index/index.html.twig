@@ -1,0 +1,22 @@
+{% extends 'layouts/default.html' %}
+
+{% block title %}{{ site.title }}{% endblock %}
+
+{% block content %}
+  <main class="front page">
+    {% for year, grouped_posts in posts | group('year') %}
+    <div class="front-group">
+      <span class="front-group__scope">{{ year }}</span>
+      {% for post in grouped_posts %}
+        <a href="{{ post.url }}" class="front__item front-group__item">
+          <span class="front-blogpost__title">{{ post.title }}</span>
+          <span class="front-blogpost__date">
+            {{ post.published_at | date('F j') }}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </main>
+{% endblock %}
+{# vim: set filetype=htmldjango: #}

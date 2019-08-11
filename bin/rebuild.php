@@ -1,40 +1,101 @@
 <?php declare(strict_types=1);
 namespace PN\B3;
-use PN\B3\Core\Index;
-use PN\B3\Core\Feed\JsonFeed;
+use PN\B3\Core\{Post, Site};
 
-require 'vendor/autoload.php';
-
-set_error_handler();
+function render_php_template(string $__filename, array $__context) {
+  extract($__context);
+  ob_start();
+  try {
+    require $__filename;
+    return ob_get_contents();
+  } finally {
+    ob_end_clean();
+  }
+}
 
 (function () {
-  $renderer = new Render\Renderer(
-    new Markdown\Renderer(),
-    new Template\Renderer(dirname(__DIR__) . '/templates'));
+  $ROOT = dirname(__DIR__);
+  chdir($ROOT);
 
-  $dataManager = new Data\DataManager();
-  $filesystemLoader = new Data\FilesystemLoader();
+  $WROTE_FILES = 0;
 
-  $pages = $filesystemLoader->loadPages();
-  $posts = $filesystemLoader->loadPosts();
+  require $ROOT . '/vendor/autoload.php';
 
-  foreach (array_merge($pages, $posts) as $piece) {
-    $path = $dataManager->getPathFor($piece);
-    $targetDir = substr($path, 0, strrpos($path, DIRECTORY_SEPARATOR) + 1);
-    if ( ! is_dir($targetDir)) {
-      mkdir($targetDir, 0755, true);
+  ensure_config();
+  set_error_handler();
+
+  $markdownRenderer = new Markdown\Renderer();
+  $templateRenderer = new Template\Renderer($ROOT . '/templates');
+
+  $site = Site::fromGlobals();
+
+  $posts = scandir("{$ROOT}/site/posts/");
+  $posts = array_map(function ($post) use ($ROOT, $markdownRenderer) {
+    if ($post[0] === '.') {
+      return null;
     }
-    $rendered = $renderer->render($piece);
-    file_put_contents($path, $rendered->content);
+    $post = Post::loadFromFile("{$ROOT}/site/posts/{$post}");
+    $post->body = $markdownRenderer->render($post->content);
+    return $post;
+  }, $posts);
+  $posts = vector_filter($posts, function ($post) { return $post !== null; });
+  usort($posts, function ($a, $b) {
+    return $b->publishedAt <=> $a->publishedAt;
+  });
+
+  $TARGET = $ROOT . '/public';
+
+  $siteArray = $site->toArray();
+  $postArrays = vector_filter($posts, function ($post) {
+    return $post->isVisible();
+  });
+  $postArrays = array_map(function ($post) {
+    return $post->toArray();
+  }, $postArrays);
+
+  $indexTemplates = scandir("{$ROOT}/templates/index/");
+  foreach ($indexTemplates as $indexTemplate) {
+    if ($indexTemplate[0] === '.') {
+      continue;
+    }
+
+    $path = "{$ROOT}/templates/index/{$indexTemplate}";
+    $name = explode('.', $indexTemplate);
+    $extension = array_pop($name);
+    $name = implode('.', $name);
+    if ($extension === 'twig') {
+      $result = $templateRenderer->render("index/{$indexTemplate}", [
+        'site' => $siteArray,
+        'posts' => $postArrays,
+      ]);
+    } else if ($extension === 'php') {
+      $result = render_php_template($path, [
+        'site' => $siteArray,
+        'posts' => $postArrays,
+        'url' => [$site, 'generateUrl'],
+      ]);
+    } else {
+      throw new \RuntimeException("Unknown template extension: {$extension}");
+    }
+
+    file_put_contents("{$TARGET}/{$name}", $result);
+    $WROTE_FILES += 1;
   }
 
-  $index = new Index($posts);
-  $indexPage = $renderer->render($index);
-  file_put_contents($dataManager->getPathFor($indexPage), $indexPage->content);
+  foreach ($posts as $post) {
+    $targetPath = "{$TARGET}/{$post->url}.html";
+    $postPage = $templateRenderer->render('archive/post.html.twig', [
+      'site' => $siteArray,
+      'post' => $post->toArray(),
+    ]);
 
-  $feed = new JsonFeed($posts);
-  file_put_contents($dataManager->getPathFor($feed), $feed->renderToText());
+    $dir = $TARGET . $post->publishedAt->format('/Y/m');
+    if ( ! is_dir($dir)) {
+      mkdir($dir, 0755, true);
+    }
+    file_put_contents($targetPath, $postPage);
+    $WROTE_FILES += 1;
+  }
 
-  $count = count($pages) + count($posts) + 2;
-  echo "[b3] Rendered {$count} files\n";
+  echo "[b3] Wrote {$WROTE_FILES} files\n";
 })();

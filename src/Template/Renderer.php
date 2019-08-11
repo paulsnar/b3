@@ -26,6 +26,22 @@ class Renderer implements RendererInterface
       return url_absolute($path);
     };
     $env->addFunction(new TwigFunction('url', $url));
+
+    $group = function (array $posts, string $scope): array {
+      $groups = [ ];
+      foreach ($posts as $post) {
+        if ($scope === 'year') {
+          $bucket = $post['published_at']->format('Y');
+          if ( ! array_key_exists($bucket, $groups)) {
+            $groups[$bucket] = [ ];
+          }
+          $groups[$bucket][] = $post;
+        }
+      }
+      ksort($groups);
+      return $groups;
+    };
+    $env->addFilter(new TwigFilter('group', $group));
   }
 
   public function render(string $templateName, array $context = [ ]): string

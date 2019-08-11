@@ -1,6 +1,6 @@
 ---
 title = "Hello World"
-date = "2019-08-06 21:54:30 +03:00"
+published-at = "2019-08-06 21:54:30 +03:00"
 ---
 
 Well then. Here we are.

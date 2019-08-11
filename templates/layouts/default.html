@@ -4,5 +4,8 @@
 <title>{% block title %}{% endblock %}</title>
 <link rel="stylesheet" href="{{ url('/style.css') }}">
 <link rel="alternate stylesheet" title="Dark Mode"
-  href="{{ url('/style-darkmode.css') }}">
+  href="{{ url('/style.dark.css') }}">
+<link rel="alternate" type="application/json" title="JSON Feed"
+  href="{{ url('/feed.json') }}">
+
 {% block content %}{% endblock %}

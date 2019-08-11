@@ -1,6 +1,6 @@
 ---
 title = "Mirroring Gitea repositories to GitHub"
-date = "2019-08-08 22:15:00 +03:00"
+published-at = "2019-08-08 22:15:00 +03:00"
 slug = "gitea-mirroring"
 ---
 

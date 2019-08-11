@@ -40,8 +40,15 @@ function str_ends_with(string $haystack, string $needle): bool {
 }
 
 function url_absolute(string $url): string {
-  ensure_config();
-  $base = rtrim(URL_BASE, '/');
-  $url = ltrim($url, '/');
-  return "{$base}/{$url}";
+  return Core\Site::fromGlobals()->generateUrl($url);
+}
+
+function vector_filter(array $array, \Closure $predicate): array {
+  $filtered = [ ];
+  foreach ($array as $item) {
+    if ($predicate($item)) {
+      $filtered[] = $item;
+    }
+  }
+  return $filtered;
 }

@@ -1,0 +1,12 @@
+{% extends 'layouts/default.html' %}
+
+{% block title %}{{ post.title }} – {{ site.title }}{% endblock %}
+
+{% block content %}
+  <article class="post page">
+    <h1 class="post__heading">{{ post.title }}</h1>
+    <p class="post__date">{{ post.date | date('F j') }}</p>
+    {{ post.body | raw }}
+  </article>
+{% endblock %}
+{# vim: set filetype=htmldjango: #}
