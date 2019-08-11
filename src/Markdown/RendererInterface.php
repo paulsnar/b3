@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Markdown;
+namespace PN\B3\Markdown;
 
 interface RendererInterface
 {

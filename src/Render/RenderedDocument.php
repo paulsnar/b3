@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Render;
-use PN\Blog\Core\Document;
+namespace PN\B3\Render;
+use PN\B3\Core\Document;
 
 /**
  * RenderedDocument represents a document that has an attached rendered

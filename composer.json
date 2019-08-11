@@ -8,7 +8,10 @@
   "authors": [ { "name": "paulsnar", "email": "paulsnar@paulsnar.lv" } ],
   "autoload": {
     "psr-4": {
-      "PN\\Blog\\": "src/"
-    }
+      "PN\\B3\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
   }
 }

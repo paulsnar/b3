@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Markdown;
+namespace PN\B3\Markdown;
 use League\CommonMark\{DocParser, Environment, HtmlRenderer};
 use League\CommonMark\Ext\SmartPunct\SmartPunctExtension;
 

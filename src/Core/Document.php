@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Core;
+namespace PN\B3\Core;
 
 /**
  * Document represents a standalone page that can be rendered into a static

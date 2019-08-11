@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Render;
+namespace PN\B3\Render;
 
 class RenderException extends \Exception
 {

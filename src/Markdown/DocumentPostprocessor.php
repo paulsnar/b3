@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Markdown;
+namespace PN\B3\Markdown;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Block\Element\{Heading, Paragraph};
 use League\CommonMark\Event\DocumentParsedEvent;
-use PN\Blog\Markdown\Footnote\{Content, ContentParagraphContainer,
+use PN\B3\Markdown\Footnote\{Content, ContentParagraphContainer,
   MergedContent};
 
 class DocumentPostprocessor

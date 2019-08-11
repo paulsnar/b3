@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Markdown\Footnote;
+namespace PN\B3\Markdown\Footnote;
 use League\CommonMark\{ElementRendererInterface, HtmlElement};
 use League\CommonMark\Block\Element\AbstractBlock;
 use League\CommonMark\Block\Renderer\BlockRendererInterface;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Render;
-use PN\Blog\Core\Document;
+namespace PN\B3\Render;
+use PN\B3\Core\Document;
 
 /**
  * Page contains the representation of a Document as rendered within a template.

@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Markdown;
+namespace PN\B3\Markdown;
 use League\CommonMark\ConfigurableEnvironmentInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\ExtensionInterface;
@@ -9,6 +9,8 @@ class Extension implements ExtensionInterface
   public function register(ConfigurableEnvironmentInterface $env)
   {
     $env
+
+      ->addInlineParser(new Typography\ArrowParser(), 10)
 
       ->addInlineParser(new Footnote\InlineParser(), 500)
       ->addInlineRenderer(Footnote\Inline::class, new Footnote\InlineRenderer())

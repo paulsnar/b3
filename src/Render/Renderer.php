@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Render;
-use PN\Blog\Core\Document;
-use PN\Blog\Markdown\RendererInterface as MarkdownRendererInterface;
-use PN\Blog\Template\RendererInterface as TemplateRendererInterface;
+namespace PN\B3\Render;
+use PN\B3\Core\Document;
+use PN\B3\Markdown\RendererInterface as MarkdownRendererInterface;
+use PN\B3\Template\RendererInterface as TemplateRendererInterface;
 
 class Renderer
 {

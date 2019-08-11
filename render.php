@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Experiment;
-use PN\Blog\Core\Document;
-use PN\Blog\Markdown\Renderer as MarkdownRenderer;
-use PN\Blog\Template\Renderer as TemplateRenderer;
-use PN\Blog\Render\Renderer;
+namespace PN\B3\Experiment;
+use PN\B3\Core\Document;
+use PN\B3\Markdown\Renderer as MarkdownRenderer;
+use PN\B3\Template\Renderer as TemplateRenderer;
+use PN\B3\Render\Renderer;
 
 require 'vendor/autoload.php';
 

@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace PN\Blog\Template;
+namespace PN\B3\Template;
 
 interface RendererInterface
 {
