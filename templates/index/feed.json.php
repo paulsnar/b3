@@ -6,10 +6,10 @@ echo json_encode([
   'home_page_url' => $site['url'],
   'feed_url' => $url('/feed.json'),
   'author' => $site['author'],
-  'items' => array_map(function ($post) {
+  'items' => array_map(function ($post) use ($url) {
     $item = [
-      'id' => $post['url'],
-      'url' => $post['url'],
+      'id' => $url($post['url']),
+      'url' => $url($post['url']),
       'title' => $post['title'],
       'date_published' => $post['published_at']->format(DATE_ATOM),
     ];
