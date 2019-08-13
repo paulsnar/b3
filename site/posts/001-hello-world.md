@@ -1,6 +1,7 @@
 ---
 title = "Hello World"
 published-at = "2019-08-06 21:54:30 +03:00"
+modified-at = "2019-08-14 01:25:00 +03:00"
 ---
 
 Well then. Here we are.
@@ -67,4 +68,5 @@ it may find some use elsewhere.
 
 ## Easter egg
 
-If you're on Firefox, go to View -> Page Style.
+If you're on Firefox and aren't using macOS Dark Mode, try going to View ->
+Page Style.
