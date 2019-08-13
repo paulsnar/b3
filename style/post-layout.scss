@@ -1,5 +1,6 @@
 .post {
-  width: 100%;
+  width: 90vw;
+  margin: 0 auto;
 }
 
 $post-sidenote-width: 15em;
@@ -8,7 +9,6 @@ $post-sidenote-gap: 1.25em;
 @media screen and (min-width: 60em) {
   .post {
     width: 55em;
-    margin: 0 auto;
     padding-left: $post-sidenote-width + $post-sidenote-gap;
   }
 
