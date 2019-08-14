@@ -1,2 +1,0 @@
-I have complex thoughts on the JVM and [Clojure](https://clojure.org) and I
-want to have a reason to use them but I don't.
