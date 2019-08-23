@@ -13,10 +13,10 @@
   Sorry, the item you tried to access could not be found.
   {% elseif error == 'method_not_allowed' %}
   Sorry, this resource doesn't support the method you requested it with.
-  {% elseif error == true %}
-  Sorry, looks like something went wrong.
+  {% elseif error == 'exception' %}
+  Sorry, during the handling of your request, an exception was encountered.
   {% else %}
-  {{ error }}
+  Sorry, looks like something went wrong.
   {% endif %}
 </div>
 {# vim: set ft=htmldjango: #}

@@ -20,6 +20,25 @@ abstract class BaseController extends B3BaseController
     } catch (RpcException $exc) {
       return TemplateRenderer::renderResponse(
         'error.html', ['error' => $exc->getData()]);
+    } catch (\Throwable $exc) {
+      // return pretty error message
+      $trace = '';
+      foreach ($exc->getTrace() as $line => $traceItem) {
+        if ($trace['class'] ?? false) {
+          $call = $traceItem['class'] . $traceItem['type'] .
+            $traceItem['function'];
+        } else {
+          $call = $traceItem['function'];
+        }
+        $trace .= sprintf("%2d: %s (%s:%s)\n", $line, $call,
+          $traceItem['file'] ?? '<none>', $traceItem['line'] ?? 0);
+      }
+
+      return TemplateRenderer::renderResponse('exception.html', [
+        'exception' => $exc,
+        'exception_class' => get_class($exc),
+        'exception_trace' => $trace,
+      ]);
     }
   }
 

@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(null) }}
+{% endblock %}
+
+{% block content %}
+  <div class="content-padding"></div>
+  {{ include('@system/partials/error.html', {'error': 'exception'}) }}
+  <pre><code>{{ exception_class }}
+{%- if exception.message %}: {{ exception.message }}{% endif %}
+
+at {{ exception.file }}:{{ exception.line }}
+{{ exception_trace }}</code></pre>
+{% endblock %}

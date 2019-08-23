@@ -2,7 +2,6 @@
 namespace PN\B3\Ext\CoreCms\Controllers;
 use PN\B3\Rpc;
 use PN\B3\Core\{Post, Site};
-use PN\B3\Controllers\BaseController;
 use PN\B3\Http\{Request, Response, Session};
 use PN\B3\Ext\CoreCms\TemplateRenderer;
 use PN\B3\Rpc\RpcException;
