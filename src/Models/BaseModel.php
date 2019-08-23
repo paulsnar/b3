@@ -62,12 +62,13 @@ abstract class BaseModel
   public function toArray(): array
   {
     $array = obj_get_properties($this);
-    return iter_collect(function () use ($array) {
+    $iter = function (array $array) {
       foreach ($array as $key => $value) {
         $key = static::camelCaseToSnakeCase($key);
         yield $key => $value;
       }
-    });
+    };
+    return iter_collect($iter($array));
   }
 
   public static function insert(Queryable $db, array $params): self

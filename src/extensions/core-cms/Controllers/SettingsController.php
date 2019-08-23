@@ -13,10 +13,8 @@ class SettingsController extends BaseController
   {
     $rpc = Rpc::getInstance();
 
-    $settings = $rpc->call('b3.getSettings', [
-      'auth_token' => $rq->attributes['auth.token'],
-      'descriptions' => true,
-    ]);
+    $settings = $rpc->call('b3.getSettings', ['descriptions' => true],
+      $rq->attributes['auth.user']);
 
     if ($rq->method === 'GET') {
       return TemplateRenderer::renderResponse(
@@ -30,9 +28,9 @@ class SettingsController extends BaseController
     }
 
     $updates = [ ];
-    foreach ($settings as $key => $setting) {
-      if ($rq->form->has($key) && $rq->form[$key] !== $setting->value) {
-        $updates[$key] = $setting->value = $rq->form[$key];
+    foreach ($settings as $key => &$setting) {
+      if ($rq->form->has($key) && $rq->form[$key] !== $setting['value']) {
+        $updates[$key] = $setting['value'] = $rq->form[$key];
       }
     }
 
@@ -43,10 +41,7 @@ class SettingsController extends BaseController
     }
 
     try {
-      $rpc->call('b3.updateSettings', [
-        'auth_token' => $rq->attributes['auth.token'],
-        'settings' => $updates,
-      ]);
+      $rpc->call('b3.updateSettings', $updates, $rq->attributes['auth.user']);
     } catch (RpcException $exc) {
       $error = $exc->getData();
       return TemplateRenderer::renderResponse(

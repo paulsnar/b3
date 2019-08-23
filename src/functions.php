@@ -63,9 +63,9 @@ function obj_get_properties($object): array {
   return get_object_vars($object);
 }
 
-function iter_collect(callable $c): array {
+function iter_collect(\Iterator $c): array {
   $array = [ ];
-  foreach ($c() as $key => $value) {
+  foreach ($c as $key => $value) {
     $array[$key] = $value;
   }
   return $array;
@@ -81,4 +81,35 @@ function dir_scan(string $dir) {
     return path_join($dir, $item);
   }, $items);
   return $items;
+}
+
+function dir_iterate_files(string $dir, bool $recurse = true) {
+  foreach (dir_scan($dir) as $item) {
+    if (is_file($item)) {
+      yield $item;
+    } else if (is_directory($item) && $recurse) {
+      yield from dir_iterate_files($item, $recurse);
+    }
+  }
+}
+
+function dir_list_files(string $dir, bool $recursive = true) {
+  return iter_collect(dir_iterate_files($dir, $recursive));
+}
+
+function debug_print(string $format, ...$args) {
+  if ($args !== [ ]) {
+    $format = vsprintf($format, $args);
+  }
+  if (substr($format, -1) !== "\n") {
+    $format .= "\n";
+  }
+
+  file_put_contents('php://stderr', $format);
+}
+
+function debug_dump(...$items) {
+  foreach ($items as $item) {
+    file_put_contents('php://stderr', print_r($item, true));
+  }
 }

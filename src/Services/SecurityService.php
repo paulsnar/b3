@@ -80,18 +80,30 @@ class SecurityService
 
   public function checkAuthentication(Request $rq): bool
   {
-    $token = $rq->cookies['st'] ?? null;
-    $user = null;
+    $token = null;
 
-    if ($token !== null) {
-      $user = $this->verifySessionToken($token);
-      if ($user !== null) {
-        $rq->attributes['auth.token'] = $token;
-        $rq->attributes['auth.user'] = $user;
+    if ($rq->headers->has('Authorization')) {
+      $auth = $rq->headers['Authorization'];
+      $auth = explode(' ', $auth, 2);
+      if ($auth[0] === 'Bearer') {
+        $token = $auth[1];
       }
+    } else if ($rq->cookies->has('st')) {
+      $token = $rq->cookies['st'];
     }
 
-    return $token !== null && $user !== null;
+    if ($token === null) {
+      return false;
+    }
+
+    $user = $this->verifySessionToken($token);
+    if ($user === null) {
+      return false;
+    }
+
+    $rq->attributes['auth.token'] = $token;
+    $rq->attributes['auth.user'] = $user;
+    return true;
   }
 
   public function attemptLogin(array $parameters): ?array

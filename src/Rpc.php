@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 namespace PN\B3;
+use PN\B3\Core\User;
 use PN\B3\Events\EventTarget;
 use PN\B3\Http\{Request, Response, Status};
-use PN\B3\Rpc\RpcException;
+use PN\B3\Rpc\{CoreHandlers, OptionalAuthenticationAware, RpcException};
+use PN\B3\Services\SecurityService;
 use function PN\B3\str_starts_with;
 
 class Rpc extends EventTarget
@@ -16,13 +18,22 @@ class Rpc extends EventTarget
     parent::__construct();
 
     $this->addEventListener('b3.singletonboot', function () {
+      Rpc\CoreHandlers::install();
       App::getInstance()->dispatchEvent('b3.rpcinstall');
     });
   }
 
-  public function installHandler(string $method, callable $handler)
+  public function installHandler(string $method, $handler)
   {
-    $this->handlers[$method] = \Closure::fromCallable($handler);
+    if ( ! is_callable($handler) &&
+         ! (is_array($handler) && count($handler) === 2)) {
+      throw new \TypeError('Unrecognized handler type');
+    }
+    if ( ! is_string($handler[1]) ||
+         ! (is_string($handler[0]) || is_object($handler[0]))) {
+      throw new \TypeError('Unrecognized handler type');
+    }
+    $this->handlers[$method] = $handler;
   }
 
   protected static function jsonResponse(array $response): Response
@@ -95,13 +106,18 @@ class Rpc extends EventTarget
       }
     }
 
+    $ok = SecurityService::getInstance()->checkAuthentication($rq);
+    $user = $ok ? $rq->attributes['auth.user'] : null;
+
     if (is_array($request) && array_key_exists(0, $request)) {
-      $response = array_map([$this, 'handleRpcCall'], $request);
+      $response = array_map(function ($request) use ($user) {
+        return $this->handleRpcCall($request, $user);
+      }, $request);
       $response = array_filter($response, function ($item) {
         return $item !== null;
       });
     } else {
-      $response = $this->handleRpcCall($request);
+      $response = $this->handleRpcCall($request, $user);
     }
 
     if ($response === null) {
@@ -111,7 +127,7 @@ class Rpc extends EventTarget
     }
   }
 
-  protected function handleRpcCall($request): ?array
+  protected function handleRpcCall(array $request, ?User $user): ?array
   {
     if ( ! is_array($request) ||
         ($request['jsonrpc'] ?? null) !== '2.0' ||
@@ -127,7 +143,7 @@ class Rpc extends EventTarget
 
     try {
       $error = null;
-      $result = $this->call($method, $params);
+      $result = $this->call($method, $params, $user);
     } catch (RpcException $err) {
       $error = $err->toArray();
     } catch (\Throwable $err) {
@@ -156,7 +172,7 @@ class Rpc extends EventTarget
     }
   }
 
-  public function call(string $method, array $params)
+  public function call(string $method, array $params, ?User $user)
   {
     $handler = $this->handlers[$method] ?? null;
     if ($handler === null) {
@@ -164,16 +180,32 @@ class Rpc extends EventTarget
         "The server does not implement this method: {$method}");
     }
 
-    return $handler($method, $params);
-  }
+    $needsAuthentication = true;
 
-  public function handleDemoSayHello(string $method, array $params)
-  {
-    $name = 'world';
-    if (array_key_exists('name', $params) &&
-        is_string($params['name'])) {
-      $name = $params['name'];
+    if (is_array($handler)) {
+      $object = $handler[0];
+      if (is_string($object)) {
+        if (method_exists($object, 'getInstance')) {
+          $object = $object::getInstance();
+        } else {
+          $object = new $object();
+        }
+        $handler[0] = $object;
+      }
+      if ($object instanceof OptionalAuthenticationAware) {
+        $needsAuthentication = $object->callNeedsAuthentication(
+          $method, $callMethod, $params);
+      }
     }
-    return "Hello, {$name}!";
+
+    if ($needsAuthentication) {
+      if ($user === null) {
+        throw new RpcException(1001, 'Unauthenticated',
+          'The current request requires authentication, but it was either ' .
+            'not present or invalid.');
+      }
+    }
+
+    return $handler($params, $user);
   }
 }

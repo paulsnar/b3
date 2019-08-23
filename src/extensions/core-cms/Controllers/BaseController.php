@@ -17,14 +17,14 @@ abstract class BaseController extends B3BaseController
   {
     try {
       return parent::dispatch($rq, $action);
-    } catch (RpcException $exc) {
-      return TemplateRenderer::renderResponse(
-        'error.html', ['error' => $exc->getData()]);
+    // } catch (RpcException $exc) {
+    //   return TemplateRenderer::renderResponse(
+    //     'error.html', ['error' => $exc->getData()]);
     } catch (\Throwable $exc) {
       // return pretty error message
       $trace = '';
       foreach ($exc->getTrace() as $line => $traceItem) {
-        if ($trace['class'] ?? false) {
+        if ($traceItem['class'] ?? false) {
           $call = $traceItem['class'] . $traceItem['type'] .
             $traceItem['function'];
         } else {
@@ -40,15 +40,5 @@ abstract class BaseController extends B3BaseController
         'exception_trace' => $trace,
       ]);
     }
-  }
-
-  /** @throws RpcException */
-  protected function callRpc(Request $rq, string $method, array $params)
-  {
-    if ($rq->attributes->has('auth.token')) {
-      $params['auth_token'] = $rq->attributes['auth.token'];
-    }
-
-    return Rpc::getInstance()->call($method, $params);
   }
 }

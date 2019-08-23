@@ -15,7 +15,7 @@
     {{ include('@system/partials/error.html') }}
   {% endif %}
   <form method="POST"
-      action="{{ post.id ? "?posts/edit&id=#{posts.id}" : '?posts/new' }}">
+      action="{{ post.id ? "?posts/edit&id=#{post.id}" : '?posts/new' }}">
     <input type="hidden" name="_csrf" value="{{ csrf() }}">
     <div class="form-group">
       <label class="form-group__label" for="ff-title">Title:</label>
@@ -23,7 +23,7 @@
         {%- if post.title %} value="{{ post.title }}"{% endif %}>
     </div>
     <label class="form-group__label" for="ff-content">Content:</label>
-    <textarea class="post-edit__content" id="ff-content" name+"content">
+    <textarea class="post-edit__content" id="ff-content" name="content">
       {{- post.content -}}
     </textarea>
     <div class="form-group">

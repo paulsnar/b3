@@ -1,0 +1,19 @@
++=============+
+# Error codes #
++=============+
+
+Apart from the codes listed here, some standard codes listed within the JSON RPC
+spec [0] can also be returned, namely -32700, -32600 and -32601.
+
+======+=====================+===================================================
+ Code | Name                | Description
+======+=====================+===================================================
+ 1001 | Unauthenticated     | No authorization data was present or it could not
+      |                     | be validated.
+------+---------------------+---------------------------------------------------
+ 1002 | Unauthorized        | The current authentication does not allow you to
+      |                     | perform this action -- a higher permission level
+      |                     | is required.
+------+---------------------+---------------------------------------------------
+ 1003 | Item not found      | The criteria provided do not match any object.
+------+---------------------+---------------------------------------------------

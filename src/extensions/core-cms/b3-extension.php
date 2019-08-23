@@ -3,6 +3,7 @@ namespace PN\B3\Ext\CoreCms;
 use PN\B3\Ext\CoreCms\Controllers as Ctrl;
 use PN\B3\Extension;
 use PN\B3\Dispatch\{Dispatcher, ControllerHandler};
+use const PN\B3\B3_VERSION;
 
 new class extends Extension {
   const ROUTES = [
@@ -12,6 +13,7 @@ new class extends Extension {
     'posts/edit' => [Ctrl\BlogController::class, 'postsEditAction'],
     'posts/delete' => [Ctrl\BlogController::class, 'postsDeleteAction'],
     'posts/preview' => [Ctrl\BlogController::class, 'postsPreviewAction'],
+    'posts/show' => [Ctrl\BlogController::class, 'postsShowAction'],
 
     'user' => [Ctrl\UserController::class, 'userAction'],
 
@@ -24,6 +26,7 @@ new class extends Extension {
       'id' => 'b3/core-cms',
       'description' => 'Core: CMS functionality',
       'author' => 'b3 <b3@pn.id.lv>',
+      'version' => B3_VERSION,
     ]);
 
     $this->addEventListener('b3-ext.boot', function () {

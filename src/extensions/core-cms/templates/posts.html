@@ -11,11 +11,16 @@
   <div class="sysmsg">
     Post <q>{{ flash('new_post').title }}</q> created.
     <a href="?posts/show&amp;id={{ flash('new_post').id }}">View it now.</a>
+  </div>
   {% elseif flash('edited_post') %}
+  <div class="sysmsg">
     Post <q>{{ flash('edited_post').title }}</q> edited.
     <a href="?posts/show&amp;id={{ flash('edited_post').id }}">View it now.</a>
+  </div>
   {% elseif flash('deleted_post') %}
+  <div class="sysmsg">
     Post <q>{{ flash('deleted_post').title }}</q> deleted.
+  </div>
   {% endif %}
 
   <div class="table-overflow-wrapper">

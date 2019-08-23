@@ -1,17 +1,11 @@
 <?php declare(strict_types=1);
-namespace PN\B3\Ext\CoreRpc\Handlers;
-use PN\B3\Core\Site;
+namespace PN\B3\Rpc\CoreHandlers;
+use PN\B3\Core\{Site, User};
 
-class SettingsHandler extends BaseHandler
+class SettingsHandler
 {
-  const METHOD_MAP = [
-    'b3.getSettings' => 'getSettings',
-  ];
-
-  public function getSettings(array $params)
+  public function getSettings(array $params, User $user): array
   {
-    $this->checkAuth($params['auth_token'] ?? null);
-
     $settings = [ ];
 
     foreach (Site::getInstance()->getSettings() as $setting) {
@@ -25,11 +19,10 @@ class SettingsHandler extends BaseHandler
     return $settings;
   }
 
-  public function updateSettings(array $params)
+  public function updateSettings(array $params, User $user): bool
   {
-    $this->checkAuth($params['auth_token'] ?? null);
-
     $changedSettings = [ ];
+
     foreach (Site::getInstance()->getSettings() as $setting) {
       if (array_key_exists($setting->key, $params)) {
         $setting->value = $params[$setting->key];

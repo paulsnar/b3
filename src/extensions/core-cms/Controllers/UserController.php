@@ -28,12 +28,12 @@ class UserController extends BaseController
         'user.html', compact('user', 'error'));
     }
 
-    $call = ['user_id' => $user->id];
+    $call = ['user_id' => $user['id']];
 
     $updated = false;
     if ($rq->form->get('username', $user->username) !== $user->username) {
       $updated = true;
-      $user->username = $call['username'] = $rq->form['username'];
+      $user['username'] = $call['username'] = $rq->form['username'];
     }
 
     if ($rq->form->get('password', '') !== '') {

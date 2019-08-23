@@ -11,6 +11,11 @@ class RpcException extends \Exception
     $this->data = $data;
   }
 
+  public static function invalidParams($data)
+  {
+    return new static(-32602, 'Invalid params', $data);
+  }
+
   public function getData()
   {
     return $this->data;

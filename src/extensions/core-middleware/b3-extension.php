@@ -2,6 +2,7 @@
 namespace PN\B3\Ext\CoreMiddleware;
 use PN\B3\Extension;
 use PN\B3\Http\Middleware\Registry;
+use const PN\B3\B3_VERSION;
 
 new class extends Extension {
   const MIDDLEWARE = [
@@ -15,6 +16,7 @@ new class extends Extension {
       'id' => 'b3/core-middleware',
       'description' => 'Core: Middleware',
       'author' => 'b3 <b3@pn.id.lv>',
+      'version' => B3_VERSION,
     ]);
 
     $this->addGlobalEventListener('b3.middlewareinstall', function () {

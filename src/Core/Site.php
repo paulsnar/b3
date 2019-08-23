@@ -89,13 +89,26 @@ class Site
     return $post;
   }
 
+  public function getBaseUrl(): string
+  {
+    $url = $this->db->selectOne(
+      'select value from site_meta where key = :key',
+      [':key' => 'b3_site_base_url']);
+    return unserialize($url['value']);
+  }
+
   public function getSettings(): array
   {
     $settings = [
       'b3_site_root' => new Setting('b3_site_root',
         path_join(App::ROOT, 'site'),
         'Site Root',
-        'The path where the index file for this site will be located.')
+        'The path where the index file for this site will be located.'),
+      'b3_site_base_url' => new Setting('b3_site_base_url',
+        'https://example.com',
+        'Site Base URL',
+        "The URL where the site's `index.html` will be located (without the " .
+          '`index.html`.)'),
     ];
 
     foreach ($settings as $setting) {
@@ -119,5 +132,11 @@ class Site
         [':key' => $setting->key, ':value' => serialize($setting->value)]);
     }
     $this->db->execute('commit');
+  }
+
+  public function toArray(): array
+  {
+    // TODO
+    return ['title' => 'Test title', 'base_url' => $this->getBaseUrl()];
   }
 }

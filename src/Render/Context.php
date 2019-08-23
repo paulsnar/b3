@@ -7,21 +7,15 @@ class Context
 {
   use Singleton;
 
-  public static function templateRenderer(): TemplateRenderer
-  {
-    return static::getInstance()->templateRenderer;
-  }
-
   public static function contentRenderer(string $type): SimpleRendererInterface
   {
     return static::getInstance()->getContentRenderer($type);
   }
 
-  public $contentRenderers = [ ], $templateRenderer;
+  public $contentRenderers = [ ];
 
   public function __construct()
   {
-    $this->templateRenderer = new TemplateRenderer();
     $this->contentRenderers['markdown'] = new Markdown\Renderer();
   }
 

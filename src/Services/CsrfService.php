@@ -32,4 +32,9 @@ class CsrfService
     }
     return $isValid;
   }
+
+  public function reinstantiateToken(string $token)
+  {
+    Session::set('csrf.token', $token);
+  }
 }

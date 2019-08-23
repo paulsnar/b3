@@ -1,5 +1,6 @@
 {
   "name": "paulsnar/blog",
+  "version": "0.1.0",
   "license": "ISC",
   "require": {
     "league/commonmark": "^1.0",
@@ -13,10 +14,11 @@
       "PN\\B3\\Ext\\CoreAuth\\": "src/extensions/core-auth/",
       "PN\\B3\\Ext\\CoreCms\\": "src/extensions/core-cms/",
       "PN\\B3\\Ext\\CoreMiddleware\\": "src/extensions/core-middleware/",
-      "PN\\B3\\Ext\\CoreRpc\\": "src/extensions/core-rpc/"
+      "PN\\B3\\Ext\\CoreRendering\\": "src/extensions/core-rendering/"
     },
     "files": [
-      "src/functions.php"
+      "src/functions.php",
+      "src/version.php"
     ]
   }
 }
