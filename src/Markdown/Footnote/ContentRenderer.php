@@ -17,8 +17,8 @@ class ContentRenderer implements BlockRendererInterface
     }
 
     $renderContent = function ($content) use ($renderer) {
-      return new HtmlElement('p', ['class' => 'sidenote'], [
-        new HtmlElement('span', ['class' => 'sidenote-index'],
+      return new HtmlElement('p', ['class' => 'aside-item'], [
+        new HtmlElement('span', ['class' => 'aside-index'],
           '[' . $content->getData('index') . '] '),
         $renderer->renderInlines($content->children()),
       ]);
@@ -31,6 +31,6 @@ class ContentRenderer implements BlockRendererInterface
     }
 
     return new HtmlElement(
-      'aside', ['class' => 'post-sidenote'], $children);
+      'aside', [], $children);
   }
 }

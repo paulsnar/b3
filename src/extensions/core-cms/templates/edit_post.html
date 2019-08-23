@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav('posts') }}
+{% endblock %}
+
+{% block content %}
+  {% if post.id %}
+  <h1><small>Editing:</small> {{ post.title }}</h1>
+  {% else %}
+  <h1>New post</h1>
+  {% endif %}
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  <form method="POST"
+      action="{{ post.id ? "?posts/edit&id=#{posts.id}" : '?posts/new' }}">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <div class="form-group">
+      <label class="form-group__label" for="ff-title">Title:</label>
+      <input type="text" class="form-field" name="title" id="ff-title"
+        {%- if post.title %} value="{{ post.title }}"{% endif %}>
+    </div>
+    <label class="form-group__label" for="ff-content">Content:</label>
+    <textarea class="post-edit__content" id="ff-content" name+"content">
+      {{- post.content -}}
+    </textarea>
+    <div class="form-group">
+      <label class="form-group__label" for="ff-state">State:</label>
+      <select id="ff-state" name="state"
+          class="form-field form-field--width-auto">
+        <option value="draft"
+            {%- if post.state == 'draft' %} selected{% endif %}>Draft</option>
+        <option value="published"
+            {%- if post.state == 'published' %} selected{% endif %}>
+          Published
+        </option>
+      </select>
+    </div>
+    <p>
+      <button class="button form-button button--primary" type="submit">
+        {{ post ? 'Edit' : 'Post' }}
+      </button>
+      <button class="button form-button" formaction="?posts/preview"
+          formtarget="b3-preview-target">
+        Preview
+      </button>
+    </p>
+  </form>
+{% endblock %}

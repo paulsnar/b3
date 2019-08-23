@@ -1,0 +1,30 @@
+Global, on PN\B3\App singleton:
+- Name: b3.earlyboot
+  Triggered by: ::boot (from ::run)
+  Description: Dispatched before loading extensions
+- Name: b3.extensionsloaded
+  Triggered by: ::importExtensions (from ::boot)
+- Name: b3.boot
+  Triggered by: ::boot (from ::run)
+  Description: Dispatched after loading extensions
+- Name: b3.middlewareinstall
+  Triggered by: PN\B3\Http\Middleware\Registry##b3.singletonboot
+  Description: Hook point for installing middleware
+- Name: b3.rpcinstall
+  Triggered by: PN\B3\Rpc##b3.singletonboot
+  Description: Hook point for installing RPC methods
+- Name: b3.shutdown
+  Triggered by: ::shutdown (from ::run)
+
+Global, on individual objects:
+- Name: b3.singletonboot
+  Triggered by: PN\B3\Util\Singleton::getInstance
+  Description: Dispatched after construction, but before returning the instance
+
+PN\B3\Dispatch\Dispatcher (singleton):
+- Name: request
+  Triggered by: ::dispatch
+  Arguments: PN\B3\Http\Request $request
+- Name: response
+  Triggered by: ::dispatch
+  Arguments: PN\B3\Http\Response $response, PN\B3\Http\Request $request

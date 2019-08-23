@@ -1,0 +1,23 @@
+{% macro nav_icon(href, icon, is_active, title, accessibility_label) %}
+  {% from 'icons/macros.html' import use as use_icon %}
+  <a href="{{ href }}" class="nav__item
+      {%- if is_active %} nav__item--active{% endif %}"
+    title="{{ title }}" aria-label="{{ accessibility_label }}
+      {%- if is_active %} (currently active){% endif %}">
+    {{ use_icon(icon) }}
+  </a>
+{% endmacro %}
+
+{% macro nav(active_section) %}
+  <nav class="nav">
+    {{ _self.nav_icon('?posts', 'document', active_section == 'posts',
+        'Posts', 'Section: posts') }}
+    {{ _self.nav_icon('?settings', 'cog', active_section == 'settings',
+        'Settings', 'Section: settings') }}
+    <span class="nav__spacer"></span>
+    {{ _self.nav_icon('?user', 'user', active_section == 'user',
+        'User', 'Section: user') }}
+    {{ _self.nav_icon('?logout', 'lock', false,
+        'Log out', 'Action: log out') }}
+  </nav>
+{% endmacro %}

@@ -1,0 +1,10 @@
+{% extends '@system/layouts/base.html' %}
+
+{% block body %}
+  {% block nav %}{% endblock %}
+  <main class="content content--has-nav">
+    {% block content %}{% endblock %}
+  </main>
+  {% from 'icons/macros.html' import defs %}
+  {{ defs() }}
+{% endblock %}

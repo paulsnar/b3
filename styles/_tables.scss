@@ -1,0 +1,37 @@
+$table-row-background: scale-color($color-background, $lightness: 5%);
+$table-row-background-alternate:
+  scale-color($table-row-background, $lightness: 5%);
+
+.table-overflow-wrapper {
+  max-width: 100%;
+  overflow: scroll;
+}
+
+table {
+  white-space: nowrap;
+  border-collapse: collapse;
+  min-width: 100%;
+}
+@media screen and (min-width: $breakpoint-desktop) {
+  table {
+    min-width: 40em;
+  }
+}
+
+thead {
+  color: $color-text-dim;
+  text-transform: uppercase;
+  // background-color: $table-header-background;
+}
+
+tbody > tr {
+  background-color: $table-row-background;
+  &:nth-child(odd) {
+    background-color: $table-row-background-alternate;
+  }
+}
+
+td, th {
+  padding: 0.25em 0.5em;
+  text-align: left;
+}

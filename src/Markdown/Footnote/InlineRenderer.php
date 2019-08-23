@@ -16,6 +16,6 @@ class InlineRenderer implements InlineRendererInterface
     }
 
     $text = '[' . $inline->getData('index') . ']';
-    return new HtmlElement('span', ['class' => 'sidenote-ref'], $text);
+    return new HtmlElement('span', ['class' => 'aside-ref'], $text);
   }
 }

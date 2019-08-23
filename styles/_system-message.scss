@@ -1,0 +1,20 @@
+.sysmsg {
+  display: block;
+  width: 100%;
+  padding: 0.5em 0.75em;
+
+  background-color: scale-color($color-background, $lightness: 20%);
+  // border: {
+  //   width: 1em/16;
+  //   style: solid;
+  //   color: scale-color($color-background, $lightness: 25%);
+  // }
+}
+
+.sysmsg--error {
+  background-color: #6c1b1b;
+}
+
+.sysmsg--success {
+  background-color: #244a24;
+}

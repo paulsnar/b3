@@ -9,7 +9,11 @@
   "authors": [ { "name": "paulsnar", "email": "paulsnar@paulsnar.lv" } ],
   "autoload": {
     "psr-4": {
-      "PN\\B3\\": "src/"
+      "PN\\B3\\": "src/",
+      "PN\\B3\\Ext\\CoreAuth\\": "src/extensions/core-auth/",
+      "PN\\B3\\Ext\\CoreCms\\": "src/extensions/core-cms/",
+      "PN\\B3\\Ext\\CoreMiddleware\\": "src/extensions/core-middleware/",
+      "PN\\B3\\Ext\\CoreRpc\\": "src/extensions/core-rpc/"
     },
     "files": [
       "src/functions.php"

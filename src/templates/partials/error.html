@@ -1,0 +1,22 @@
+<div class="sysmsg sysmsg--error">
+  {% if error == 'csrf' %}
+  Sorry, a security check failed. Try again?
+  {% elseif error == 'credentials' %}
+  Sorry, those credentials don't match anyone we know. Try again?
+  {% elseif error == 'already_installed' %}
+  Sorry, this instance of B3 is already installed.
+  {% elseif error == 'not_implemented' %}
+  Sorry, this functionality is not yet implemented.
+  {% elseif error == 'missing_id' %}
+  The <code>id</code> parameter was not provided within the request.
+  {% elseif error == 'not_found' %}
+  Sorry, the item you tried to access could not be found.
+  {% elseif error == 'method_not_allowed' %}
+  Sorry, this resource doesn't support the method you requested it with.
+  {% elseif error == true %}
+  Sorry, looks like something went wrong.
+  {% else %}
+  {{ error }}
+  {% endif %}
+</div>
+{# vim: set ft=htmldjango: #}

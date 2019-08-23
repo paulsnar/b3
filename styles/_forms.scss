@@ -1,0 +1,85 @@
+$form-field-background: scale-color($color-background, $lightness: 5%);
+$form-field-background-active:
+  scale-color($form-field-background, $lightness: 2.5%);
+$form-field-border-color: scale-color($color-background, $lightness: 25%);
+$form-field-border-color-active:
+  scale-color($form-field-border-color, $lightness: 20%);
+$form-field-border-width: 1em/16;
+$form-field-border-radius: $form-field-border-width * 4;
+
+.form-field {
+  width: 100%;
+  padding: 0.5em 0.75em;
+  border-radius: 0.125em;
+
+  font-size: inherit;
+  font-family: inherit;
+
+  background-color: $form-field-background;
+  border: {
+    width: $form-field-border-width;
+    style: solid;
+    color: $form-field-border-color;
+  }
+  color: $color-text;
+
+  &:focus {
+    background-color: $form-field-background-active;
+    border-color: $form-field-border-color-active;
+  }
+
+  &[disabled] {
+    color: $color-text-dim;
+    cursor: not-allowed;
+  }
+
+  &.form-field--width-auto {
+    width: auto;
+  }
+}
+
+textarea {
+  background-color: $form-field-background;
+  color: $color-text;
+  border: none;
+  width: 100%;
+  line-height: 1.25;
+  padding: 0.75em 1em;
+}
+
+.form-hint {
+  color: $color-text-dim;
+}
+
+.form-button {
+  min-width: 10em;
+}
+
+.form-group {
+  display: block;
+  margin: 1em 0;
+}
+.form-group__label {
+  color: $color-text-dim;
+  text-transform: uppercase;
+}
+
+@media screen and (min-width: $breakpoint-desktop) {
+  .form-group--wide {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    & > .form-field {
+      width: 15em;
+      margin: 0 1em;
+      flex-shrink: 0;
+    }
+    & > .form-group__label {
+      display: inline-block;
+      width: 7em;
+      text-align: right;
+      flex-shrink: 0;
+    }
+  }
+}

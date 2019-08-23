@@ -1,0 +1,15 @@
+@import "config";
+@import "scaffolding";
+@import "typography";
+@import "layout";
+@import "buttons";
+@import "forms";
+@import "tables";
+@import "system-message";
+@import "nav";
+@import "post-list";
+@import "admin";
+
+.settings-field {
+  min-width: 20em;
+}

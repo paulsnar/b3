@@ -1,0 +1,23 @@
+{% extends 'layouts/narrow.html' %}
+
+{% block title %}install :: {{ parent() }}{% endblock %}
+
+{% block content %}
+  <div class="b3-title b3-title--centered">b3</div>
+  {% if error %}
+    {{ include('misc/error.html') }}
+  {% endif %}
+  {% if user %}
+  <div class="sysmsg">
+    <p>
+      Congratulations, B3 has been installed! You can now
+        <a href="?login">log in</a>
+      with username
+        <code>{{ user.username }}</code>
+      and password
+        <code>{{ password }}</code>.
+    </p>
+    <p><em>Note:</em> This data won't be shown again, so note it down now!</p>
+  </div>
+  {% endif %}
+{% endblock %}

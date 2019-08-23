@@ -1,0 +1,35 @@
+{% extends 'blog/layout.html' %}
+
+{% block nav %}
+  {% from 'blog/nav.html' import nav %}
+  {{ nav('settings') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Settings</h1>
+  {% if error %}
+    {{ include('misc/error.html') }}
+  {% endif %}
+  {% if success %}
+  <div class="sysmsg sysmsg--success">Settings updated successfully.</div>
+  {% elseif success is defined %}
+  <div class="sysmsg">No settings needed updating.</div>
+  {% endif %}
+  <form method="POST" action="?settings">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    {% for setting in settings %}
+    <div class="form-group form-group--wide">
+      <label for="ff-{{ setting.key }}" class="form-group__label">
+        {{ setting.name }}
+      </label>
+      <input class="form-field settings-field" type="text"
+        name="{{ setting.key }}" id="ff-{{ setting.key }}"
+        value="{{ setting.value }}">
+      <span class="form-hint">{{ setting.description }}</span>
+    </div>
+    {% endfor %}
+    <button class="button form-button button--primary" type="submit">
+      Save
+    </button>
+  </form>
+{% endblock %}

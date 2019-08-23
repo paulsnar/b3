@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(null) }}
+{% endblock %}
+
+{% block content %}
+  <div class="content-padding"></div>
+  {{ include('@system/partials/error.html') }}
+{% endblock %}

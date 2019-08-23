@@ -1,0 +1,9 @@
+.content {
+  width: 92.5vw;
+  max-width: 40em;
+  margin: 0 auto;
+
+  &.content--narrow {
+    max-width: 30em;
+  }
+}

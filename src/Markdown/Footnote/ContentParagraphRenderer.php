@@ -22,7 +22,7 @@ class ContentParagraphRenderer implements BlockRendererInterface
     $content = $block->getContent();
     $content = $renderer->renderBlock($content, $inTightList);
 
-    return new HtmlElement('div', ['class' => 'post-sidenote-container'],
+    return new HtmlElement('div', ['class' => 'aside-container'],
       [$paragraph, $content]);
   }
 }

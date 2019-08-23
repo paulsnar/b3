@@ -1,0 +1,22 @@
+{% macro defs() %}
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+  <defs>
+    <g id="icon-cog" aria-label="Cog icon">{{ source('icons/cog.svg') }}</g>
+    <g id="icon-document" aria-label="Document icon">
+      {{ source('icons/document.svg') }}
+    </g>
+    <g id="icon-lock" aria-label="Padlock icon">{{ source('icons/lock.svg') }}</g>
+    <g id="icon-user" aria-label="Person silhouette icon">
+      {{ source('icons/user.svg') }}
+    </g>
+  </defs>
+</svg>
+{% endmacro %}
+
+{% macro use(name, props={}) %}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+    class="icon {%- if props.class %} {{ props.class }}{% endif %}"
+    {%- if props.style %} style="{{ props.style }}" {%- endif -%}>
+  <use href="#icon-{{ name }}"/>
+</svg>
+{% endmacro %}

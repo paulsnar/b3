@@ -1,0 +1,35 @@
+$button-background: scale-color($color-background, $lightness: 15%);
+
+$button-background-primary: hsl(200deg, 100%, 30%);
+
+@mixin button-hover-state($color) {
+  &:hover {
+    background-color: scale-color($color, $lightness: 5%);
+  }
+}
+
+.button {
+  display: inline-block;
+  padding: 0.5em 1em;
+  font-size: inherit;
+
+  text-decoration: none;
+  font-weight: normal;
+  text-align: center;
+
+  background-color: $button-background;
+  color: $color-text;
+  border: none;
+  cursor: pointer;
+
+  @include button-hover-state($button-background);
+}
+
+.button--small {
+  padding: 0.35em 0.7em;
+}
+
+.button--primary {
+  background-color: $button-background-primary;
+  @include button-hover-state($button-background-primary);
+}

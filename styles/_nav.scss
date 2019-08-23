@@ -1,0 +1,66 @@
+$nav-size: 3.5em;
+$nav-background: scale-color($color-background, $lightness: -25%);
+$nav-background-highlight: scale-color($nav-background, $lightness: 20%);
+$nav-icon-color: scale-color($color-text, $lightness: -25%);
+$nav-hover-lighten: 10%;
+
+.content--has-nav {
+  margin-top: $nav-size * 1.25;
+}
+
+.nav {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: $nav-size;
+
+  background-color: $nav-background;
+
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.nav__item {
+  width: $nav-size;
+  height: $nav-size;
+  padding: $nav-size / 4;
+  fill: $nav-icon-color;
+  &:hover {
+    background-color:
+      scale-color($nav-background, $lightness: $nav-hover-lighten);
+    // cursor: pointer;
+  }
+  & > .icon {
+    width: 100%;
+    height: 100%;
+  }
+}
+.nav__item--active, .nav__item--active:hover {
+  background-color: $nav-background-highlight;
+  cursor: default;
+}
+
+.nav__spacer {
+  flex-grow: 1;
+}
+
+@media screen and (min-width: $breakpoint-desktop) {
+  .nav {
+    left: 0;
+    width: $nav-size;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .content--has-nav {
+    margin-top: 0;
+    // Some margin is applied by the element not being 100% of width (but only
+    // 95%), so we pad only as much as to offset the content from the nav.
+    margin-left: $nav-size * 1.5;
+  }
+
+  .nav__item {
+    width: 100%;
+    height: auto;
+  }
+}

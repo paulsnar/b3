@@ -1,0 +1,54 @@
+@mixin font-firasans($weight, $weight-name) {
+  @font-face {
+    font-family: 'Fira Sans';
+    font-weight: $weight;
+    font-style: normal;
+    src:
+      local('Fira Sans #{$weight-name}'),
+      url('static/firasans/#{$weight}.woff2') format('woff2'),
+      url('static/firasans/#{$weight}.woff') format('woff');
+  }
+
+  $italic-name: '#{$weight-name} Italic';
+  @if $weight == 400 {
+    $italic-name: 'Italic';
+  }
+
+  @font-face {
+    font-family: 'Fira Sans';
+    font-weight: $weight;
+    font-style: italic;
+    src:
+      local('Fira Sans #{$italic-name}'),
+      url('static/firasans/#{$weight}i.woff2') format('woff2'),
+      url('static/firasans/#{$weight}i.woff') format('woff');
+  }
+}
+
+@include font-firasans(400, 'Regular');
+@include font-firasans(700, 'Bold');
+
+body {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+h1 > small, h2 > small, h3 > small, h4 > small, h5 > small, h6 > small,
+    .heading__small {
+  color: $color-text-dim;
+  font-size: 0.85em;
+  text-transform: uppercase;
+}
+
+.b3-title {
+  font-size: 250%;
+  font-weight: bold;
+  color: scale-color($color-background, $lightness: 12.5%);
+  margin: 0.5em 0;
+  &.b3-title--centered {
+    text-align: center;
+  }
+}
+
+.icon {
+  height: 1em;
+}

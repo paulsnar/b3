@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav('user') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Edit user</h1>
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  {% if updated is defined %}
+  <div class="sysmsg sysmsg--success">
+    {% if updated %}
+      Changes saved!
+    {% else %}
+      No changes were made, but saved anyway.
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="form-group form-group--wide">
+    <label class="form-group__label" for="ff-userid">User ID:</label>
+    <input type="text" disabled class="form-field"
+      id="ff-userid" value="{{ user.id }}">
+    <span class="form-hint">This field cannot be changed.</span>
+  </div>
+
+  <form method="POST" action="?user">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-username">Username:</label>
+      <input type="text" class="form-field" name="username" id="ff-username"
+        value="{{ user.username }}">
+    </div>
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-password">Password:</label>
+      <input type="password" class="form-field" name="password"
+        id="ff-password">
+      <span class="form-hint">
+        Fill out this field only if you want to change your password.
+      </span>
+    </div>
+    <button class="button form-button button--primary" type="submit">
+      Update
+    </button>
+  </form>
+{% endblock %}

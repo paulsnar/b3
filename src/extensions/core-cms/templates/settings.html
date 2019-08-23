@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav('settings') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Settings</h1>
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  {% if updated is defined %}
+  <div class="sysmsg sysmsg--success">
+    {% if updated %}
+      Settings updated successfully.
+    {% else %}
+      No changes were made, but saved anyway.
+    {% endif %}
+  </div>
+  {% endif %}
+  <form method="POST" action="?settings">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    {% for key, setting in settings %}
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-{{ key }}">
+        {{ setting.name }}
+      </label>
+      <input class="form-field settings-field" type="text"
+        name="{{ key }}" id="ff-{{ key }}"
+        value="{{ setting.value }}">
+      <span class="form-hint">{{ setting.description }}</span>
+    </div>
+    {% endfor %}
+    <button class="button form-button button--primary" type="submit">
+      Save
+    </button>
+  </form>
+{% endblock %}

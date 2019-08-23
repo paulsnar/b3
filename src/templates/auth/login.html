@@ -1,0 +1,30 @@
+{% extends 'layouts/narrow.html' %}
+
+{% block title %}log in :: {{ parent() }}{% endblock %}
+
+{% block content %}
+  <div class="b3-title b3-title--centered">b3</div>
+  {% if error %}
+    {{ include('partials/error.html') }}
+  {% endif %}
+  {% if flash('logout') %}
+    <div class="sysmsg">
+      You have been successfully logged out. See you later!
+    </div>
+  {% endif %}
+  <form method="POST" action="?login{% if then %}&then={{ then }}{% endif %}">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label class="form-group">
+      <span class="form-group__label">Username</span>
+      <input class="form-field" type="text" name="username"
+        {%- if username %} value="{{ username }}"{% endif %}>
+    </label>
+    <label class="form-group">
+      <span class="form-group__label">Passphrase</span>
+      <input class="form-field" type="password" name="password">
+    </label>
+    <button class="button form-button button--primary" type="submit">
+      Log In
+    </button>
+  </form>
+{% endblock %}

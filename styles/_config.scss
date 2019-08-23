@@ -1,0 +1,8 @@
+// The base URL of the file, without a trailing slash.
+$url-base: '';
+
+$color-background: #232323;
+$color-text: #dedede;
+$color-text-dim: scale-color($color-text, $lightness: -30%);
+
+$breakpoint-desktop: 50em;

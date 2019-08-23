@@ -8,18 +8,6 @@ use PN\B3\Markdown\Footnote\{Content, ContentParagraphContainer,
 
 class DocumentPostprocessor
 {
-  protected static function setClass(Node $node, string $setClass)
-  {
-    $attributes = $node->getData('attributes', [ ]);
-    $class = $attributes['class'] ?? '';
-    if ($class !== '') {
-      $class .= ' ';
-    }
-    $class .= $setClass;
-    $attributes['class'] = $class;
-    $node->data['attributes'] = $attributes;
-  }
-
   public function onDocumentParsed(DocumentParsedEvent $event)
   {
     $doc = $event->getDocument();
@@ -34,12 +22,6 @@ class DocumentPostprocessor
 
       if ($node instanceof Content) {
         $this->amalgamateFootnotes($walker, $event, $node);
-      } else if ($node instanceof Heading) {
-        self::setClass($node, 'heading');
-      } else if (
-          $node instanceof Paragraph &&
-          ! ($node instanceof Footnote\Content)) {
-        self::setClass($node, 'text post-paragraph');
       }
     }
   }
@@ -55,7 +37,7 @@ class DocumentPostprocessor
       $sibling = $sibling->next();
     }
 
-    if (count($adjacentFootnotes) > 0) {
+    if ($adjacentFootnotes !== [ ]) {
       $mergedNode = new MergedContent($adjacentFootnotes);
       $node->replaceWith($mergedNode);
       $node = $mergedNode;
