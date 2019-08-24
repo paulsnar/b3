@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Models;
 use PN\B3\Db\Queryable;
+use PN\B3\JsonSerializable;
 use function PN\B3\{iter_collect, obj_get_properties};
 
-abstract class BaseModel
+abstract class BaseModel implements JsonSerializable
 {
   public static function lookup(Queryable $db, array $attributes): ?self
   {
@@ -69,6 +70,11 @@ abstract class BaseModel
       }
     };
     return iter_collect($iter($array));
+  }
+
+  public function serializeJson()
+  {
+    return $this->toArray();
   }
 
   public static function insert(Queryable $db, array $params): self

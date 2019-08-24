@@ -56,11 +56,34 @@ function array_pluck(array $array, ...$keys): array {
   return $result;
 }
 
+function array_without(array $array, ...$keys): array {
+  foreach ($keys as $key) {
+    if (array_key_exists($key, $array)) {
+      unset($array[$key]);
+    }
+  }
+  return $array;
+}
+
 // This deliberately exists as an independent function so that it can be called
 // from within objects and return only the publicly accessible properties
 // instead of scope-accessible ones.
 function obj_get_properties($object): array {
   return get_object_vars($object);
+}
+
+// Return an array with the selected accessible properties of an object.
+// Essentially array_pluck, but doesn't require casting the object to an array
+// which would be a hack anyway.
+// Works with __get.
+function obj_pluck($object, ...$properties): array {
+  $result = [ ];
+  foreach ($properties as $property) {
+    try {
+      $result[$property] = $object->$property;
+    } catch (\Throwable $err) { /* noop */ }
+  }
+  return $result;
 }
 
 function iter_collect(\Iterator $c): array {

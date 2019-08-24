@@ -7,7 +7,7 @@ use PN\B3\Ext\CoreRendering\Renderer;
 use PN\B3\Http\{Request, Response, Session};
 use PN\B3\Rpc\RpcException;
 use PN\B3\Services\CsrfService;
-use function PN\B3\array_pluck;
+use function PN\B3\obj_pluck;
 use function PN\B3\debug_dump;
 
 class BlogController extends BaseController
@@ -59,7 +59,7 @@ class BlogController extends BaseController
         'edit_post.html', compact('post', 'error'));
     }
 
-    Session::setFlash('new_post', array_pluck($post, 'id', 'title'));
+    Session::setFlash('new_post', obj_pluck($post, 'id', 'title'));
     return Response::redirectTo('?posts');
   }
 
@@ -79,10 +79,10 @@ class BlogController extends BaseController
         'edit_post.html', compact('post'));
     }
 
-    $post['title'] = $rq->form['title'];
-    $post['content'] = $rq->form['content'];
+    $post->title = $rq->form['title'];
+    $post->content = $rq->form['content'];
     if (Post::isValidState($rq->form['state'])) {
-      $post['state'] = $rq->form['state'];
+      $post->state = $rq->form['state'];
     }
 
     if ( ! $rq->attributes['csrf.passed']) {
@@ -92,8 +92,8 @@ class BlogController extends BaseController
     }
 
     try {
-      $update = array_pluck($post, 'title', 'content', 'state');
-      $update['post_id'] = $post['id'];
+      $update = obj_pluck($post, 'title', 'content', 'state');
+      $update['post_id'] = $post->id;
       Rpc::getInstance()->call('b3.editPost', $update,
         $rq->attributes['auth.user']);
     } catch (RpcException $exc) {
@@ -102,7 +102,7 @@ class BlogController extends BaseController
         'edit_post.html', compact('post', 'error'));
     }
 
-    Session::setFlash('edited_post', array_pluck($post, 'id', 'title'));
+    Session::setFlash('edited_post', obj_pluck($post, 'id', 'title'));
     return Response::redirectTo('?posts');
   }
 
@@ -136,7 +136,7 @@ class BlogController extends BaseController
         'delete_post.html', compact('post', 'error'));
     }
 
-    Session::setFlash('deleted_post', array_pluck($post, 'title'));
+    Session::setFlash('deleted_post', obj_pluck($post, 'title'));
     return Response::redirectTo('?posts');
   }
 
@@ -165,7 +165,6 @@ class BlogController extends BaseController
     $id = intval($rq->query['id'], 10);
     $post = Rpc::getInstance()->call('b3.getPost', ['id' => $id],
       $rq->attributes['auth.user']);
-    $post = new Post($post);
 
     $site = Site::getInstance();
     $url = $site->getBaseUrl() . '/' . $post->getUrl();

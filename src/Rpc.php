@@ -144,6 +144,9 @@ class Rpc extends EventTarget
     try {
       $error = null;
       $result = $this->call($method, $params, $user);
+      if ($result instanceof JsonSerializable) {
+        $result = $result->serializeJson();
+      }
     } catch (RpcException $err) {
       $error = $err->toArray();
     } catch (\Throwable $err) {

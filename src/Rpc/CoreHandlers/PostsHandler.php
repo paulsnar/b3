@@ -16,14 +16,10 @@ class PostsHandler
     [$posts, $cursor] = Site::getInstance()->getPosts(
       $criterion, $count, $cursor);
 
-    $posts = array_map(function ($post) {
-      return $post->toArray();
-    }, $posts);
-
     return compact('posts', 'cursor');
   }
 
-  public function getPost(array $params, User $user): array
+  public function getPost(array $params, User $user): Post
   {
     if ( ! array_key_exists('id', $params)) {
       throw RpcException::invalidParams(
@@ -36,10 +32,10 @@ class PostsHandler
         'The criteria provided do not match any items.');
     }
 
-    return $post->toArray();
+    return $post;
   }
 
-  public function newPost(array $params, User $user): array
+  public function newPost(array $params, User $user): Post
   {
     $state = $params['state'];
     if ( ! Post::isValidState($state)) {
@@ -66,10 +62,10 @@ class PostsHandler
     $post = Post::insert(Site::getInstance()->db, $post);
 
     App::getInstance()->dispatchEvent('b3.posts.new', $post);
-    return $post->toArray();
+    return $post;
   }
 
-  public function editPost(array $params, User $user): array
+  public function editPost(array $params, User $user): Post
   {
     $id = $params['post_id'] ?? null;
     if ($id === null) {
@@ -91,7 +87,7 @@ class PostsHandler
     $post->update(Site::getInstance()->db, $updates);
 
     App::getInstance()->dispatchEvent('b3.posts.edited', $post);
-    return $post->toArray();
+    return $post;
   }
 
   public function deletePost(array $params, User $user): bool

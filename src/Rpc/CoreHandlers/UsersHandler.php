@@ -16,7 +16,7 @@ class UsersHandler implements OptionalAuthenticationAware
     return $method !== 'b3.login';
   }
 
-  public function getUser(array $params, User $user): array
+  public function getUser(array $params, User $user): User
   {
     $db = Config::getDb();
     if (array_key_exists('id', $params)) {
