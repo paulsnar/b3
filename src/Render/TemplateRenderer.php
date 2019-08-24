@@ -31,9 +31,13 @@ class TemplateRenderer
     $this->globals[$name] = compact('cache', 'obtain');
   }
 
-  public function registerFunction(string $name, callable $callback)
-  {
-    $this->environment->addFunction(new TwigFunction($name, $callback));
+  public function registerFunction(
+    string $name,
+    callable $callback,
+    bool $contextAware = false
+  ) {
+    $this->environment->addFunction(
+      new TwigFunction($name, $callback, ['needs_context' => $contextAware]));
   }
 
   protected function injectGlobals(array $context): array

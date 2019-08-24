@@ -3,25 +3,44 @@ namespace PN\B3\Rpc\CoreHandlers;
 use PN\B3\App;
 use PN\B3\Core\{Post, Site, User};
 use PN\B3\Rpc\RpcException;
-use function PN\B3\array_pluck;
+use function PN\B3\{array_index, array_pluck};
 
 class PostsHandler
 {
   public function listPosts(array $params, User $user): array
   {
-    [$posts, $cursor] = Site::getInstance()->getPosts($params);
+    $site = $params['site_id'] ?? null;
+    if ($site === null) {
+      throw RpcException::invalidParams('No site_id specified.');
+    }
+
+    $posts = Post::selectAll([
+      'site_id' => $site,
+      'state' => array_index($params, 'state', Post::STATE_PUBLISHED),
+      'published_before' => array_index($params, 'cursor', null),
+    ]);
+
+    $cursor = null;
+    if ($posts !== [ ]) {
+      $cursor = $posts[count($posts) - 1]->published_at->getTimestamp();
+      $hasMore = Post::exists(['published_at' => ['<', $cursor]]);
+      if ( ! $hasMore) {
+        $cursor = null;
+      }
+    }
 
     return compact('posts', 'cursor');
   }
 
   public function getPost(array $params, User $user): Post
   {
-    if ( ! array_key_exists('id', $params)) {
+    $id = $params['id'] ?? null;
+    if ($id === null) {
       throw RpcException::invalidParams(
         'No criterion provided for post lookup.');
     }
 
-    $post = Site::getInstance()->getPost($params['id']);
+    $post = Post::lookup(['id' => $id]);
     if ($post === null) {
       throw new RpcException(1003, 'Item not found',
         'The criteria provided do not match any items.');
@@ -32,6 +51,16 @@ class PostsHandler
 
   public function newPost(array $params, User $user): Post
   {
+    $site = $params['site_id'] ?? null;
+    if ($site === null) {
+      throw RpcException::invalidParams('No site_id provided.');
+    }
+    $site = Site::lookup(['id' => $site]);
+    if ($site === null) {
+      throw new RpcException(1003, 'Not found',
+        'site_id does not correspond to a known site.');
+    }
+
     $state = $params['state'];
     if ( ! Post::isValidState($state)) {
       $state = Post::STATE_DRAFT;
@@ -39,6 +68,7 @@ class PostsHandler
 
     $post = [
       'author_id' => $user->id,
+      'site_id' => $site->id,
       'state' => $state,
       'slug' => $params['slug'] ?? 'sampleslug-' . uniqid(), // TODO
       'title' => $params['title'] ?? null,
@@ -54,9 +84,9 @@ class PostsHandler
       }
     }
 
-    $post = Post::insert(Site::getInstance()->db, $post);
+    $post = Post::insert($post);
 
-    App::getInstance()->dispatchEvent('b3.posts.new', $post);
+    App::getInstance()->dispatchEvent('b3.posts.new', $site, $post);
     return $post;
   }
 
@@ -68,7 +98,7 @@ class PostsHandler
         'Parameter `post_id` must be provided.');
     }
 
-    $post = Site::getInstance()->getPost($id);
+    $post = Post::lookup(['id' => $id]);
     if ($post === null) {
       throw new RpcException(1003, 'Not found',
         'The criteria provided do not match any items.');
@@ -79,9 +109,10 @@ class PostsHandler
       $updates['state'] = $params['state'];
     }
 
-    $post->update(Site::getInstance()->db, $updates);
+    $post->update($updates);
 
-    App::getInstance()->dispatchEvent('b3.posts.edited', $post);
+    $site = Site::lookup(['id' => $post->site_id]);
+    App::getInstance()->dispatchEvent('b3.posts.edited', $site, $post);
     return $post;
   }
 
@@ -93,32 +124,44 @@ class PostsHandler
         'Parameter `post_id` must be provided.');
     }
 
-    $post = Site::getInstance()->getPost($id);
+    $post = Post::lookup(['id' => $id]);
     if ($post === null) {
       throw new RpcException(1003, 'Not found',
         'The criteria provided do not match any items.');
     }
 
-    $post->delete(Site::getInstance()->db);
+    $post->delete();
 
-    App::getInstance()->dispatchEvent('b3.posts.deleted', $post);
+    $site = Site::lookup(['id' => $post->site_id]);
+    App::getInstance()->dispatchEvent('b3.posts.deleted', $site, $post);
     return true;
   }
 
   public function rebuild(array $params, User $user): bool
   {
+    $site = $params['site_id'] ?? null;
     $renderer = \PN\B3\Ext\CoreRendering\Renderer::getInstance();
 
-    $renderer->buildIndexes();
+    if ($site === null) {
+      $sites = Site::select([ ]);
+    } else {
+      $site = Site::lookup(['id' => $site]);
+      if ($site === null) {
+        throw new RpcException(1003, 'Not found',
+          'site_id does not correspond to a known site.');
+      }
+      $sites = [$site];
+    }
 
-    $result = $this->listPosts([
-      'count' => null,
-      'type' => 'published',
-      'with_content' => true,
-    ], $user);
-    $posts = $result['posts'];
-    foreach ($posts as $post) {
-      $renderer->buildPost($post);
+    foreach ($sites as $site) {
+      $renderer->buildIndexes($site);
+      $posts = Post::select([
+        'site_id' => $site->id,
+        'state' => Post::STATE_PUBLISHED,
+      ]);
+      foreach ($posts as $post) {
+        $renderer->buildPost($site, $post);
+      }
     }
 
     return true;

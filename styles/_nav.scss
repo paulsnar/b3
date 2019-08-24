@@ -30,6 +30,12 @@ $nav-hover-lighten: 10%;
       scale-color($nav-background, $lightness: $nav-hover-lighten);
     // cursor: pointer;
   }
+  &[disabled] {
+    fill: scale-color($nav-icon-color, $lightness: -37.5%);
+    &:hover {
+      background-color: $nav-background;
+    }
+  }
   & > .icon {
     width: 100%;
     height: 100%;

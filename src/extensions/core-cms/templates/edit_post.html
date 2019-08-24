@@ -2,7 +2,7 @@
 
 {% block nav %}
   {% from 'nav.html' import nav %}
-  {{ nav('posts') }}
+  {{ nav(site_id, 'posts') }}
 {% endblock %}
 
 {% block content %}
@@ -14,8 +14,9 @@
   {% if error %}
     {{ include('@system/partials/error.html') }}
   {% endif %}
-  <form method="POST"
-      action="{{ post.id ? "?posts/edit&id=#{post.id}" : '?posts/new' }}">
+  <form method="POST" action="
+      {%- if post.id -%} ?posts/edit&amp;id={{ post.id }}
+        {%- else -%} ?posts/new&amp;site_id={{ site_id }} {%- endif %}">
     <input type="hidden" name="_csrf" value="{{ csrf() }}">
     <div class="form-group">
       <label class="form-group__label" for="ff-title">Title:</label>
@@ -42,7 +43,8 @@
       <button class="button form-button button--primary" type="submit">
         {{ post ? 'Edit' : 'Post' }}
       </button>
-      <button class="button form-button" formaction="?posts/preview"
+      <button class="button form-button"
+          formaction="?posts/preview&amp;site_id={{ site_id }}"
           formtarget="b3-preview-target">
         Preview
       </button>

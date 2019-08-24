@@ -3,14 +3,21 @@ namespace PN\B3\Rpc;
 use PN\B3\Rpc;
 use PN\B3\Rpc\CoreHandlers\{
     PostsHandler,
+    SitesHandler,
     UsersHandler,
     SettingsHandler};
 
 class CoreHandlers
 {
   const METHOD_MAP = [
-    'b3.getPost' => [PostsHandler::class, 'getPost'],
+    'b3.listSites' => [SitesHandler::class, 'listSites'],
+    'b3.getSite' => [SitesHandler::class, 'getSite'],
+    'b3.newSite' => [SitesHandler::class, 'newSite'],
+    'b3.editSite' => [SitesHandler::class, 'editSite'],
+    'b3.deleteSite' => [SitesHandler::class, 'deleteSite'],
+
     'b3.listPosts' => [PostsHandler::class, 'listPosts'],
+    'b3.getPost' => [PostsHandler::class, 'getPost'],
     'b3.newPost' => [PostsHandler::class, 'newPost'],
     'b3.editPost' => [PostsHandler::class, 'editPost'],
     'b3.deletePost' => [PostsHandler::class, 'deletePost'],

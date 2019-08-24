@@ -2,7 +2,7 @@
 
 {% block nav %}
   {% from 'nav.html' import nav %}
-  {{ nav('rebuild') }}
+  {{ nav(site_id, 'rebuild') }}
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
   {% if error %}
     {{ include('@system/partials/error.html') }}
   {% endif %}
-  <form method="POST" action="?rebuild">
+  <form method="POST" action="?rebuild&amp;site_id={{ site_id }}">
     <input type="hidden" name="_csrf" value="{{ csrf() }}">
     <button class="button form-button button--primary" type="submit">
       Rebuild

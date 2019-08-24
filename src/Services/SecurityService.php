@@ -32,7 +32,7 @@ class SecurityService
     $hmacKey = static::getHmacKey();
     $hmac = hash_hmac('sha256', $secret, $hmacKey);
     $now = time();
-    Config::getDb()->execute(
+    Db::getGlobal()->execute(
       'insert into login_tokens ' .
         '( lookup,  secret,  user_id,  created_at,  valid_until) values ' .
         '(:lookup, :secret, :user_id, :created_at, :valid_until)',
@@ -56,7 +56,7 @@ class SecurityService
     $lookup = substr($token, 0, 64);
     $secret = substr($token, 64, 64);
 
-    $token = Config::getDb()->selectOne(
+    $token = Db::getGlobal()->selectOne(
       'select user_id, secret, valid_until from login_tokens ' .
         'where lookup = :lookup',
       [':lookup' => $lookup]);
@@ -75,7 +75,7 @@ class SecurityService
     }
 
     $userId = intval($token['user_id']);
-    return User::lookup(Config::getDb(), ['id' => intval($token['user_id'])]);
+    return User::lookup(['id' => intval($token['user_id'])]);
   }
 
   public function checkAuthentication(Request $rq): bool
@@ -108,8 +108,7 @@ class SecurityService
 
   public function attemptLogin(array $parameters): ?array
   {
-    $user = User::lookup(Config::getDb(),
-      ['username' => $parameters['username']]);
+    $user = User::lookup(['username' => $parameters['username']]);
     if ($user === null) {
       return null;
     }

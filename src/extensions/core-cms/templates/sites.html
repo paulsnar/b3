@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(null, 'sites') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Sites</h1>
+  <p>Select a site to operate upon.</p>
+
+  <div class="table-overflow-wrapper">
+    <table>
+      <tbody>
+        {% for site in sites %}
+          <tr>  <td>{{ site.title }}
+                    <a class="button button--small"
+                      href="?posts&amp;site_id={{ site.id }}">&raquo;</a>
+        {% endfor %}
+          <tr>  <td><a class="button" href="?sites/new">+ New site</a>
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

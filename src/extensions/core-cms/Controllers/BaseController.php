@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Ext\CoreCms\Controllers;
-use PN\B3\Rpc;
 use PN\B3\Controllers\BaseController as B3BaseController;
-use PN\B3\Http\{Request, Response};
+use PN\B3\Core\Site;
+use PN\B3\Ext\CoreCms\{CmsException, TemplateRenderer};
+use PN\B3\Http\{HttpSerializable, Request, Response};
+use PN\B3\Rpc;
 use PN\B3\Rpc\RpcException;
-use PN\B3\Ext\CoreCms\TemplateRenderer;
 
 abstract class BaseController extends B3BaseController
 {
@@ -17,9 +18,13 @@ abstract class BaseController extends B3BaseController
   {
     try {
       return parent::dispatch($rq, $action);
-    // } catch (RpcException $exc) {
-    //   return TemplateRenderer::renderResponse(
-    //     'error.html', ['error' => $exc->getData()]);
+    } catch (CmsException $exc) {
+      return TemplateRenderer::renderResponse('error.html', [
+        'error' => $exc->getMessage(),
+        'site_id' => $rq->query['site_id'],
+      ]);
+    } catch (HttpSerializable $exc) {
+      throw $exc;
     } catch (\Throwable $exc) {
       // return pretty error message
       $trace = '';
@@ -38,7 +43,25 @@ abstract class BaseController extends B3BaseController
         'exception' => $exc,
         'exception_class' => get_class($exc),
         'exception_trace' => $trace,
+        'site_id' => $rq->query['site_id'],
       ]);
     }
+  }
+
+  protected function requireSiteId(
+    Request $rq,
+    bool $verify = true
+  ): int {
+    $id = $rq->query['site_id'];
+    if ($id === null || ! ctype_digit($id)) {
+      throw new CmsException('missing_site_id');
+    }
+
+    $id = intval($id, 10);
+    if ($verify && ! Site::exists(['id' => $id])) {
+      throw new CmsException('invalid_site_id');
+    }
+
+    return $id;
   }
 }

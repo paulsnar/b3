@@ -5,6 +5,20 @@ function path_join(...$parts): string {
   return implode(DIRECTORY_SEPARATOR, $parts);
 }
 
+function url_join(...$parts): string {
+  if ($parts === [ ]) {
+    return '';
+  }
+
+  $url = array_shift($parts);
+  foreach ($parts as $part) {
+    $url = rtrim($url, '/');
+    $part = ltrim($part, '/');
+    $url .= '/' . $part;
+  }
+  return $url;
+}
+
 function str_starts_with(string $haystack, string $needle): bool {
   return substr($haystack, 0, strlen($needle)) === $needle;
 }
@@ -65,6 +79,15 @@ function array_without(array $array, ...$keys): array {
   return $array;
 }
 
+// Like the ?? operator, but doesn't pick RHS on falsy values that are actually
+// present in the array.
+function array_index(array $array, $index, $default = null) {
+  if (array_key_exists($index, $array)) {
+    return $array[$index];
+  }
+  return $default;
+}
+
 // This deliberately exists as an independent function so that it can be called
 // from within objects and return only the publicly accessible properties
 // instead of scope-accessible ones.
@@ -121,6 +144,14 @@ function dir_list_files(string $dir, bool $recursive = true) {
 }
 
 function debug_print(string $format, ...$args) {
+  $bt = debug_backtrace(2);
+  $self = $bt[0];
+  $bt = $bt[1];
+  $call = ($bt['class'] ?? false) ?
+    "{$bt['class']}{$bt['type']}{$bt['function']}" : $bt['function'];
+  $call = sprintf('%s:%d (%s)',
+    $self['file'] ?? '<none>', $self['line'] ?? 0, $call);
+
   if ($args !== [ ]) {
     $format = vsprintf($format, $args);
   }
@@ -128,11 +159,21 @@ function debug_print(string $format, ...$args) {
     $format .= "\n";
   }
 
-  file_put_contents('php://stderr', $format);
+  file_put_contents('php://stderr', "{$call}: {$format}");
 }
 
 function debug_dump(...$items) {
+  $bt = debug_backtrace(2);
+  $self = $bt[0];
+  $bt = $bt[1];
+  $call = ($bt['class'] ?? false) ?
+    "{$bt['class']}{$bt['type']}{$bt['function']}" : $bt['function'];
+  $call = sprintf('%s:%d (%s)',
+    $self['file'] ?? '<none>', $self['line'] ?? 0, $call);
+
+  $message = '';
   foreach ($items as $item) {
-    file_put_contents('php://stderr', print_r($item, true));
+    $message .= $call . ': ' . print_r($item, true) . "\n";
   }
+  file_put_contents('php://stderr', $message);
 }

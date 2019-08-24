@@ -1,46 +1,21 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Ext\CoreRendering;
-use PN\B3\App;
+use PN\B3\{App, Rpc};
 use PN\B3\Core\{Post, Site};
 use PN\B3\Render\{Context as RenderContext, TemplateRenderer};
+use PN\B3\Templating\{TemplateLoader, Template};
 use PN\B3\Util\Singleton;
-use function PN\B3\{debug_dump, dir_list_files, path_join};
+use Twig\Environment as TwigEnvironment;
+use function PN\B3\{dir_list_files, path_join};
 
 class Renderer
 {
   use Singleton;
 
-  protected $templateRenderer;
-  protected
-    $indexTemplates = [ ];
-  protected $themeRoot, $targetRoot;
+  protected $siteEnvironments = [ ], $siteLoaders = [ ];
 
   public function __construct()
   {
-    $this->themeRoot = path_join(App::ROOT, 'theme');
-    $this->templateRenderer = new TemplateRenderer($this->themeRoot);
-    $this->templateRenderer->registerGlobal('site', function () {
-      return Site::getInstance()->toArray();
-    });
-    $url = function (string $path): string {
-      $base = Site::getInstance()->getBaseUrl();
-      $base = rtrim($base, '/');
-      $path = ltrim($path, '/');
-      return $base . '/' . $path;
-    };
-    $this->templateRenderer->registerFunction('url', $url);
-
-    $this->templateRenderer->registerFunction('dump', function ($item) {
-      var_dump($item);
-    });
-
-    $this->indexTemplates = dir_list_files(
-      path_join($this->themeRoot, 'index'), true);
-    $this->targetRoot = path_join(App::ROOT, 'site');
-    if ( ! is_dir($this->targetRoot)) {
-      mkdir($this->targetRoot);
-    }
-
     $this->installEventHandlers();
   }
 
@@ -48,104 +23,123 @@ class Renderer
   {
     $app = App::getInstance();
 
-    $renderPostAndIndexes = function (Post $post) {
-      $this->buildIndexes();
-      $this->buildPost($post);
-      $this->deletePhantomPost();
+    $renderPostAndIndexes = function (Site $site, Post $post) {
+      $this->buildIndexes($site);
+      $this->buildPost($site, $post);
+      $this->deletePhantomPost($site);
     };
 
     $app->addEventListener('b3.posts.new', $renderPostAndIndexes);
     $app->addEventListener('b3.posts.edited', $renderPostAndIndexes);
 
-    $app->addEventListener('b3.posts.deleted', function (Post $post) {
-      $this->buildIndexes();
-      $this->deletePost($post);
-    });
+    $renderIndexes = function (Site $site, Post $post) {
+      $this->buildIndexes($site);
+    };
+    $app->addEventListener('b3.posts.deleted', $renderIndexes);
   }
 
-  public function buildIndexes()
+  protected function getSiteEnvironment(Site $site): TwigEnvironment
   {
-    $prefixLength = strlen(path_join($this->themeRoot, 'index', ''));
-    [$posts, $cursor] = Site::getInstance()->getPosts();
+    if (array_key_exists($site->id, $this->siteEnvironments)) {
+      return $this->siteEnvironments[$site->id];
+    }
 
-    foreach ($this->indexTemplates as $template) {
-      $targetName = substr($template, $prefixLength);
-      $targetPath = path_join($this->targetRoot, $targetName);
+    $loader = new TemplateLoader($site);
+    $this->siteLoaders[$site->id] = $loader;
+    $environment = new TwigEnvironment($loader);
+    $this->siteEnvironments[$site->id] = $environment;
 
-      if (strpos($targetName, DIRECTORY_SEPARATOR) !== false) {
-        $dir = substr(
-          $targetName, 0, strrpos($targetName, DIRECTORY_SEPARATOR));
-        $dir = path_join($this->targetRoot, $dir);
-        if ( ! is_dir($dir)) {
-          mkdir($dir, 0777, true);
-        }
+    $environment->addGlobal('site', $site);
+
+    return $environment;
+  }
+
+  public function buildIndexes(Site $site)
+  {
+    $env = $this->getSiteEnvironment($site);
+    $loader = $this->siteLoaders[$site->id];
+
+    $posts = Post::selectAll([
+      'state' => Post::STATE_PUBLISHED,
+      'site_id' => $site->id,
+    ]);
+
+    foreach ($loader->getAllTemplates(Template::TYPE_INDEX) as $template) {
+      $twigTemplate = $env->load($template->name);
+      $contents = $twigTemplate->render(['posts' => $posts]);
+
+      $directory = $template->getTargetDirectory();
+      if ( ! is_dir($directory)) {
+        mkdir($directory);
       }
-
-      $contents = $this->templateRenderer->render(
-        'index/' . $targetName, ['posts' => $posts]);
-      file_put_contents($targetPath, $contents);
+      file_put_contents($template->getTargetPath(), $contents);
     }
   }
 
-  protected function getPostTargetPath(Post $post): string
+  protected function getPostTargetPath(Site $site, Post $post): string
   {
     $targetPath = $post->url . '.html';
     if (DIRECTORY_SEPARATOR !== '/') {
       $targetPath = str_replace('/', DIRECTORY_SEPARATOR, $targetPath);
     }
-    return $targetPath;
+    return path_join($site->target_path, $targetPath);
   }
 
-  public function buildPost(Post $post)
+  public function buildPost(Site $site, Post $post)
   {
-    $targetPath = $this->getPostTargetPath($post);
-
+    $targetPath = $this->getPostTargetPath($site, $post);
+    $content = $this->renderPost($site, $post);
 
     if (strpos($targetPath, DIRECTORY_SEPARATOR) !== false) {
       $dir = substr($targetPath, 0, strrpos($targetPath, DIRECTORY_SEPARATOR));
-      $dir = path_join($this->targetRoot, $dir);
       if ( ! is_dir($dir)) {
         mkdir($dir, 0777, true);
       }
     }
 
-    file_put_contents(
-      path_join($this->targetRoot, $targetPath),
-      $this->renderPost($post));
+    file_put_contents($targetPath, $content);
   }
 
-  public function buildPhantomPost(Post $post): string
+  public function buildPhantomPost(Site $site, Post $post): string
   {
-    $targetPath = path_join($this->targetRoot, '_preview.html');
+    $targetPath = path_join($site->target_path, '_preview.html');
 
-    file_put_contents($targetPath, $this->renderPost($post));
+    file_put_contents($targetPath, $this->renderPost($site, $post));
     return '_preview.html';
   }
 
-  public function renderPost(Post $post)
+  public function renderPost(Site $site, Post $post)
   {
     if ($post->body === null) {
       $post->body = RenderContext::contentRenderer($post->content_type)
           ->render($post->content);
     }
 
-    // TODO: don't hardcode template name
-    // also allow for more flexible archiving, such as by week/month?
-    return $this->templateRenderer->render(
-      'archive/post.html', compact('post'));
+    $env = $this->getSiteEnvironment($site);
+    $loader = $this->siteLoaders[$site->id];
+
+    $template = $loader->getAllTemplates('entry');
+    if ($template === [ ]) {
+      throw new \RuntimeException(
+        "No entry template defined for site {$site->id}");
+    }
+    $template = $template[0];
+
+    $twigTemplate = $env->load($template->name);
+    return $twigTemplate->render(['post' => $post]);
   }
 
-  public function deletePhantomPost()
+  public function deletePhantomPost(Site $site)
   {
-    $phantom = path_join($this->targetRoot, '_preview.html');
+    $phantom = path_join($site->target_path, '_preview.html');
     if (file_exists($phantom)) {
       unlink($phantom);
     }
   }
 
-  public function deletePost(Post $post)
+  public function deletePost(Site $site, Post $post)
   {
-    $targetPath = $this->getPostTargetPath($post);
+    $targetPath = $this->getPostTargetPath($site, $post);
     if (file_exists($targetPath)) {
       unlink($targetPath);
     }

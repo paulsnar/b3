@@ -8,18 +8,44 @@
   </a>
 {% endmacro %}
 
-{% macro nav(active_section) %}
+{% macro nav_icon_faux(icon, title, accessibility_label) %}
+  {% from 'icons/macros.html' import use as use_icon %}
+  <span class="nav__item" disabled title="{{ title }}"
+      aria-label="{{ accessibility_label }} (disabled)">
+    {{ use_icon(icon) }}
+  </span>
+{% endmacro %}
+
+{% macro nav(site_id, active_section) %}
   <nav class="nav">
-    {{ _self.nav_icon('?posts', 'document', active_section == 'posts',
+    {% if site_id is null %}
+    {{ _self.nav_icon_faux('document', 'Posts', 'Section: posts') }}
+    {{ _self.nav_icon_faux('edit', 'Templates', 'Section: templates') }}
+    {{ _self.nav_icon_faux('refresh', 'Rebuild', 'Action: rebuild') }}
+    {{ _self.nav_icon_faux('cog', 'Settings', 'Section: settings') }}
+    {% else %}
+    {{ _self.nav_icon("?posts&site_id=#{site_id}",
+        'document', active_section == 'posts',
         'Posts', 'Section: posts') }}
-    {{ _self.nav_icon('?rebuild', 'edit', active_section == 'rebuild',
+    {{ _self.nav_icon("?templates&site_id=#{site_id}",
+        'edit', active_section == 'templates',
+        'Templates', 'Section: templates') }}
+    {{ _self.nav_icon("?rebuild&site_id=#{site_id}",
+        'refresh', active_section == 'rebuild',
         'Rebuild', 'Action: rebuild') }}
-    {{ _self.nav_icon('?settings', 'cog', active_section == 'settings',
-        'Settings', 'Section: settings') }}
+    {{ _self.nav_icon("?sites/edit&id=#{site_id}",
+        'cog', active_section == 'settings',
+        'Site settings', 'Section: site settings') }}
+    {% endif %}
+
     <span class="nav__spacer"></span>
-    {{ _self.nav_icon('?user', 'user', active_section == 'user',
+    {{ _self.nav_icon('?home', 'book', active_section == 'sites',
+        'Site switcher', 'Action: switch current site') }}
+    {{ _self.nav_icon('?user' ~ (site_id ? "&site_id=#{site_id}" : ''),
+        'user', active_section == 'user',
         'User', 'Section: user') }}
     {{ _self.nav_icon('?logout', 'lock', false,
         'Log out', 'Action: log out') }}
   </nav>
 {% endmacro %}
+{# vim: set ft=htmldjango: #}

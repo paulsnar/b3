@@ -9,6 +9,12 @@
   Sorry, this functionality is not yet implemented.
   {% elseif error == 'missing_id' %}
   The <code>id</code> parameter was not provided within the request.
+  {% elseif error == 'missing_site_id' %}
+  The <code>site_id</code> parameter was not provided within the request.
+  {% elseif error == 'invalid_site_id' %}
+  The <code>site_id</code> parameter does not correspond to a known site.
+  {% elseif error == 'form_validation' %}
+  Sorry, but some fields were not filled out or invalid.
   {% elseif error == 'not_found' %}
   Sorry, the item you tried to access could not be found.
   {% elseif error == 'method_not_allowed' %}

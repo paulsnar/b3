@@ -15,7 +15,7 @@ class Migrator
     }
 
     $maxSchemaVersion = 0;
-    $upSources = [0 => '000-base.sql'];
+    $upSources = [0 => path_join($migrationRoot, '000-base.sql')];
     foreach (dir_scan($migrationRoot) as $migration) {
       $migrationName = substr($migration, strlen($migrationRoot));
       $nameParts = explode('-', $migrationName, 3);

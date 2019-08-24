@@ -2,12 +2,17 @@
 
 {% block nav %}
   {% from 'nav.html' import nav %}
-  {{ nav('posts') }}
+  {{ nav(site_id, 'posts') }}
 {% endblock %}
 
 {% block content %}
   <h1>Posts</h1>
-  {% if flash('new_post') %}
+  {% if flash('new_site') %}
+  <div class="sysmsg">
+    Site was created.
+    <a href="?posts/new&amp;site_id={{ site_id }}">Make a new post.</a>
+  </div>
+  {% elseif flash('new_post') %}
   <div class="sysmsg">
     Post <q>{{ flash('new_post').title }}</q> created.
     <a href="?posts/show&amp;id={{ flash('new_post').id }}">View it now.</a>
@@ -24,7 +29,7 @@
   {% elseif flash('rebuilt') %}
   <div class="sysmsg">
     Rebuilding succeeded.
-    <a href="?posts/show">View the site now.</a>
+    <a href="?posts/show&site_id={{ site_id }}">View the site now.</a>
   </div>
   {% endif %}
 
@@ -35,7 +40,7 @@
               <th>  Title
               <th class="post-list__post-actions">
                 <a class="button button--primary button--small"
-                  href="?posts/new">+ New</a>
+                  href="?posts/new&amp;site_id={{ site_id }}">+ New</a>
       </thead>
       <tbody>
         {% for post in posts %}
@@ -55,15 +60,17 @@
         {% else %}
           <tr>  <td colspan=4>
                   Nothing has been posted yet.
-                  <a class="button" href="?posts/new">
+                  <a class="button" href="?posts/new&amp;site_id={{ site_id }}">
                     + Make a new post
                   </a>
         {% endfor %}
       </tbody>
       {% if cursor %}
       <tfoot>
-        <tr>  <td colspan=4 class="post-list__post-actions">
-                <a href="?posts&amp;after={{ cursor }}">Next &raquo;</a>
+        <tr>
+          <td colspan=4 class="post-list__post-actions">
+            <a href="?posts&amp;site_id={{ site_id }}&amp;cursor={{ cursor }}">
+              Next &raquo;</a>
       </tfoot>
       {% endif %}
     </table>

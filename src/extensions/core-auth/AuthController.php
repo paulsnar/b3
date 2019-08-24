@@ -9,7 +9,7 @@ class AuthController extends BaseController
   public function loginAction(Request $rq): Response
   {
     $then = $rq->query['then'];
-    $target = '?' . ($then ?: 'posts');
+    $target = '?' . ($then ?: 'home');
 
     $sec = SecurityService::getInstance();
     if ($sec->checkAuthentication($rq)) {

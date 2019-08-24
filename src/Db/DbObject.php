@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Db;
+use PN\B3\Db;
 use PN\B3\JsonSerializable;
 
 abstract class DbObject
@@ -7,24 +8,70 @@ abstract class DbObject
   // const TABLE
   // const COLUMNS
 
-  public static function lookup(Queryable $db, array $attributes): ?self
-  {
-    $query = 'select * from ' . static::TABLE;
+  protected static function buildSelect(
+    array $attributes,
+    ?array $columns = null,
+    Queryable $db
+  ): array {
+    if ($columns === null) {
+      $columns = [new SqlFragment('*')];
+    }
+    $columns = array_map(function ($name) use ($db) {
+      if ($name instanceof SqlFragment) {
+        return $name->toString();
+      }
+      return $db->escapeIdentifier($name);
+    }, $columns);
+    $query = 'select ' . implode(', ', $columns) . ' from ' . static::TABLE;
     $params = [ ];
 
-    // even though the false case doesn't make much sense, but whatever
     if ($attributes !== [ ]) {
       $query .= ' where ';
 
       $whereClauses = [ ];
       foreach ($attributes as $name => $value) {
         $name = $db->escapeIdentifier($name);
-        $whereClauses[] = "{$name} = ?";
-        $params[] = $value;
+        $operator = '=';
+        $param = '?';
+        if (is_array($value)) {
+          [$operator, $value] = $value;
+        }
+        if ($value instanceof SqlFragment) {
+          $param = $value->toString();
+        } else if ($value instanceof SqlPlaceholder) {
+          $param = $value->getSql();
+          $params = array_merge($params, $value->getValues());
+        } else {
+          $params[] = $value;
+        }
+        $whereClauses[] = "{$name} {$operator} {$param}";
       }
       $query .= implode(' and ', $whereClauses);
     }
 
+    return [$query, $params];
+  }
+
+  public static function exists(array $attributes, ?Queryable $db = null): bool
+  {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
+
+    [$query, $params] = static::buildSelect(
+      $attributes, [new SqlFragment('1')], $db);
+    $query .= ' limit 1';
+
+    return $db->selectOne($query, $params) !== null;
+  }
+
+  public static function lookup(array $attributes, ?Queryable $db = null): ?self
+  {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
+
+    [$query, $params] = static::buildSelect($attributes, null, $db);
     $query .= ' limit 1';
 
     $row = $db->selectOne($query, $params);
@@ -32,6 +79,19 @@ abstract class DbObject
       return new static($row);
     }
     return $row;
+  }
+
+  public static function select(array $attributes, ?Queryable $db = null): array
+  {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
+
+    [$query, $params] = static::buildSelect($attributes, null, $db);
+
+    return array_map(function ($row) {
+      return new static($row);
+    }, $db->select($query, $params));
   }
 
   protected $attributes = [ ];
@@ -75,9 +135,33 @@ abstract class DbObject
 
       case 'timestamp':
         return new \DateTime('@' . $value, timezone_open('UTC'));
+
+      case 'json':
+        return json_decode($value, true);
     }
 
     return $value;
+  }
+
+  protected function typeUncast(string $key, $value)
+  {
+    if ($value === null) {
+      return null;
+    }
+
+    if ($key === 'id') {
+      $type = 'integer';
+    } else {
+      $type = static::COLUMNS[$key] ?? 'string';
+    }
+
+    switch ($type) {
+      case 'timestamp':
+        return $value->getTimestamp();
+
+      case 'json':
+        return json_encode($value, JSON_UNESCAPED_SLASHES);
+    }
   }
 
   public function toArray(): array
@@ -125,8 +209,12 @@ abstract class DbObject
     }
   }
 
-  public function insert(Queryable $db, array $attributes): self
+  public static function insert(array $attributes, ?Queryable $db = null): self
   {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
+
     $query = 'insert into ' . static::TABLE . ' (';
 
     $columns = [ ];
@@ -148,15 +236,22 @@ abstract class DbObject
     return new static($attributes);
   }
 
-  public function delete(Queryable $db)
+  public function delete(?Queryable $db = null)
   {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
     $db->execute(
       'delete from ' . static::TABLE . ' where id = :id',
       [':id' => $this->id]);
   }
 
-  public function update(Queryable $db, ?array $params = null)
+  public function update(?array $params = null, ?Queryable $db = null)
   {
+    if ($db === null) {
+      $db = Db::getGlobal();
+    }
+
     $query = 'update ' . static::TABLE . ' set ';
 
     $items = [ ];

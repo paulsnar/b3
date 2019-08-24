@@ -7,7 +7,10 @@ use const PN\B3\B3_VERSION;
 
 new class extends Extension {
   const ROUTES = [
-    'home' => [Ctrl\BlogController::class, 'homeAction'],
+    'home' => [Ctrl\SiteController::class, 'homeAction'],
+    'sites/new' => [Ctrl\SiteController::class, 'sitesNewAction'],
+    'sites/edit' => [Ctrl\SiteController::class, 'sitesEditAction'],
+
     'posts' => [Ctrl\BlogController::class, 'postsAction'],
     'posts/new' => [Ctrl\BlogController::class, 'postsNewAction'],
     'posts/edit' => [Ctrl\BlogController::class, 'postsEditAction'],
@@ -17,8 +20,6 @@ new class extends Extension {
     'rebuild' => [Ctrl\BlogController::class, 'rebuildAction'],
 
     'user' => [Ctrl\UserController::class, 'userAction'],
-
-    'settings' => [Ctrl\SettingsController::class, 'settingsAction'],
   ];
 
   public function __construct()

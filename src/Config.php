@@ -6,51 +6,59 @@ class Config
 {
   use Util\Singleton;
 
-  public $db;
+  protected $values = [ ], $dirty = false;
 
   public function __construct()
   {
-    $this->db = new Db\Sqlite(path_join(App::ROOT, 'b3config.db'));
-    Db\Migrator::migrate($this->db,
-      path_join(App::ROOT, 'etc', 'migrations', 'config'));
+    $app = App::getInstance();
 
-    // $this->loadDefaults();
+    $path = path_join(App::ROOT, 'b3config.php');
+    if ( ! file_exists($path)) {
+      $app->dispatchEvent('b3.loadconfigdefaults');
+      $this->export();
+    } else {
+      $this->values = require $path;
+    }
+
+    $app->addEventListener('b3.shutdown', function () {
+      $this->handleShutdown();
+    });
   }
 
   public function getValue(string $key, $default = null)
   {
-    $row = $this->db->selectOne(
-      'select value from config_values where key = :key',
-      [':key' => $key]);
-    if ($row === null) {
-      return $default;
-    }
-    return unserialize($row['value']);
+    return $this->values[$key] ?? $default;
   }
 
   public function setValue(string $key, $value)
   {
-    $value = serialize($value);
-    $this->db->execute('insert or replace into config_values ' .
-      '(key, value) values (:key, :value)',
-      [':key' => $key, ':value' => $value]);
-  }
-
-  public function transaction(\Closure $callback)
-  {
-    $this->db->execute('begin transaction');
-    try {
-      $callback($this);
-      $this->db->execute('commit');
-    } catch (\Throwable $exc) {
-      $this->db->execute('rollback');
-      throw $exc;
+    if ( ! array_key_exists($key, $this->values) ||
+        $value !== $this->values[$key]) {
+      $this->values[$key] = $value;
+      $this->dirty = true;
     }
   }
 
-  public static function getDb(): Db\Queryable
+  protected function handleShutdown()
   {
-    return static::getInstance()->db;
+    if ($this->dirty) {
+      $this->export();
+    }
+  }
+
+  protected function export()
+  {
+    $body = "<?php return " . var_export($this->values, true) . ";\n";
+
+    $umask = umask();
+    umask(0037);
+
+    $target = fopen(path_join(App::ROOT, 'b3config.php'), 'w');
+    flock($target, LOCK_EX);
+    fwrite($target, $body);
+    fflush($target);
+    flock($target, LOCK_UN);
+    fclose($target);
   }
 
   public static function get(string $key, $default = null)

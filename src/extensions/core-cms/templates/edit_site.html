@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(site_id, site_id ? 'settings' : 'sites') }}
+{% endblock %}
+
+{% block content %}
+  {% if site_id %}
+  <h1><small>Settings for site:</small> {{ site.title }}</h1>
+  {% else %}
+  <h1>New site</h1>
+  {% endif %}
+
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  {% if updated %}
+  <div class="sysmsg sysmsg--success">
+    Settings were updated.
+    <a href="?rebuild&amp;site_id={{ site_id }}">Rebuild now</a>
+    to see the changes reflected.
+  </div>
+  {% endif %}
+
+  <form method="POST" action="
+      {%- if site -%} ?sites/edit&amp;id={{ site_id }}
+        {%- else -%} ?sites/new {%- endif %}">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-title">Site title:</label>
+      <input class="form-field" type="text" name="title" id="ff-title"
+        {%- if site.title %} value="{{ site.title }}" {%- endif %}>
+    </div>
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-base-url">Base URL:</label>
+      <input class="form-field" type="text" name="base_url" id="ff-base-url"
+        {%- if site.base_url %} value="{{ site.base_url }}" {%- endif %}>
+      <span class="form-hint">
+        The URL where the site's <code>index.html</code> will be accessible.
+        Don't include the <code>index.html</code>.
+      </span>
+    </div>
+    <div class="form-group form-group--wide">
+      <label class="form-group__label" for="ff-target-path">Target path:</label>
+      <input class="form-field" type="text" name="target_path"
+        id="ff-target-path"
+        {%- if site.target_path %} value="{{ site.target_path }}" {%- endif %}>
+      <span class="form-hint">
+        The filesystem path to where the site's <code>index.html</code> should
+        be stored. Don't include the <code>index.html</code>.
+      </span>
+    </div>
+    <button class="button form-button button--primary" type="submit">
+      {{ site.id ? 'Edit' : 'Create' }}
+    </button>
+  </form>
+{% endblock %}

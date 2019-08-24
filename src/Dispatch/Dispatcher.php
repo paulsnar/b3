@@ -39,7 +39,8 @@ class Dispatcher extends EventTarget
 
     $handler = $this->handlers[$action] ?? null;
     if ($handler === null) {
-      return Response::withText("Sorry, not found.\n", Status::NOT_FOUND);
+      return Response::withText(
+        "Sorry, not found. ({$action})\n", Status::NOT_FOUND);
     }
 
     try {

@@ -139,11 +139,11 @@ final class App extends Events\EventTarget
 
     $dispatcher = Dispatch\Dispatcher::getInstance();
 
-    if ( ! $this->isInstalled()) {
-      $dispatcher->addEventListener('request', function ($rq) {
-        $rq->action = 'install';
-      });
-    }
+    // if ( ! $this->isInstalled()) {
+    //   $dispatcher->addEventListener('request', function ($rq) {
+    //     $rq->action = 'install';
+    //   });
+    // }
 
     $response = $dispatcher->dispatch();
     $response->send();
