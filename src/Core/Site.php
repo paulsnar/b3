@@ -109,14 +109,18 @@ class Site
         'Site Base URL',
         "The URL where the site's `index.html` will be located (without the " .
           '`index.html`.)'),
+      'b3_site_title' => new Setting('b3_site_title',
+        'Example Site',
+        'Site Title',
+        'The title of the site.'),
     ];
 
-    foreach ($settings as $setting) {
-      $entry = $this->db->selectOne(
-        'select value from site_meta where key = :key',
-        [':key' => $setting->key]);
-      if ($entry !== null) {
-        $setting->value = unserialize($entry['value']);
+    $savedSettings = $this->db->select('select key, value from site_meta');
+    foreach ($savedSettings as $savedSetting) {
+      $key = $savedSetting['key'];
+      if (array_key_exists($key, $settings)) {
+        $value = unserialize($savedSetting['value']);
+        $settings[$key]->value = $value;
       }
     }
 
@@ -137,6 +141,10 @@ class Site
   public function toArray(): array
   {
     // TODO
-    return ['title' => 'Test title', 'base_url' => $this->getBaseUrl()];
+    $settings = $this->getSettings();
+    return [
+      'title' => $settings['b3_site_title']->value,
+      'base_url' => $this->getBaseUrl(),
+    ];
   }
 }
