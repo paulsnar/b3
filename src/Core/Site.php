@@ -18,30 +18,47 @@ class Site
       path_join(App::ROOT, 'etc', 'migrations', 'site'));
   }
 
-  public function getPosts(
-    string $criterion = 'latest',
-    int $count = 30,
-    ?int $publishedBefore = null
-  ): array {
-    if ($criterion !== 'latest') {
-      throw new \RuntimeException("Unknown post criterion: {$criterion}");
+  public function getPosts(array $criteria = [ ]): array
+  {
+    $type = $criteria['type'] ?? 'published';
+    if ($type !== 'published' && $type !== 'all') {
+      throw new \RuntimeException("Unknown post criterion: {$type}");
     }
 
     $createPost = function (array $item): Post {
       return new Post($item);
     };
 
-    // Don't load content and content_rendered as those might potentially
-    // be quite large
     $query = 'select id, author_id, state, slug, title, published_at, ' .
-       'modified_at, content_type from posts ';
-    $params = [];
-    if ($publishedBefore !== null) {
-      $query .= 'where published_at < :published_before ';
-      $params[':published_before'] = $publishedBefore;
+       'modified_at, content_type';
+    if ($criteria['with_content'] ?? false) {
+      $query .= ', content';
     }
-    $query .= ' order by published_at desc limit :limit';
-    $params[':limit'] = $count;
+    $query .= ' from posts';
+
+    $where = [ ];
+    $params = [ ];
+
+    if ($type === 'published') {
+      $where[] = "state = 'published'";
+    }
+
+    $before = $item['published_before'] ?? null;
+    if ($before !== null) {
+      $where[] = 'published_at < :published_before';
+      $params[':published_before'] = $item['published_before'];
+    }
+
+    if ($where !== [ ]) {
+      $query .= ' where ' . implode(' and ', $where);
+    }
+
+    $query .= ' order by published_at desc';
+
+    if (($count = $item['count'] ?? 30) !== null) {
+      $query .= ' limit :limit';
+      $params[':limit'] = $count;
+    }
 
     $posts = $this->db->select($query, $params);
     $posts = array_map($createPost, $posts);
@@ -51,11 +68,11 @@ class Site
       $seen[$post->id] = true;
     }
 
-    if ($posts === 0) {
+    if ($posts === [ ]) {
       $cursor = null;
     } else {
-      // To implement pagination properly, we add posts that were published in the
-      // same second as the last one on this page, so the next page starts
+      // To implement pagination properly, we add posts that were published in
+      // the same second as the last one on this page, so the next page starts
       // immediately after the last one on this page.
       $last = $posts[count($posts) - 1];
       $extraPosts = $this->db->select(

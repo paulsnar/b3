@@ -89,7 +89,7 @@ class Renderer
 
   protected function getPostTargetPath(Post $post): string
   {
-    $targetPath = $post->getUrl() . '.html';
+    $targetPath = $post->url . '.html';
     if (DIRECTORY_SEPARATOR !== '/') {
       $targetPath = str_replace('/', DIRECTORY_SEPARATOR, $targetPath);
     }
@@ -99,12 +99,6 @@ class Renderer
   public function buildPost(Post $post)
   {
     $targetPath = $this->getPostTargetPath($post);
-
-    if ($post->contentRendered === null) {
-      $post->contentRendered =
-        RenderContext::contentRenderer($post->contentType)
-          ->render($post->content);
-    }
 
 
     if (strpos($targetPath, DIRECTORY_SEPARATOR) !== false) {
@@ -124,18 +118,17 @@ class Renderer
   {
     $targetPath = path_join($this->targetRoot, '_preview.html');
 
-    if ($post->contentRendered === null) {
-      $post->contentRendered =
-        RenderContext::contentRenderer($post->contentType)
-          ->render($post->content);
-    }
-
     file_put_contents($targetPath, $this->renderPost($post));
     return '_preview.html';
   }
 
   public function renderPost(Post $post)
   {
+    if ($post->body === null) {
+      $post->body = RenderContext::contentRenderer($post->content_type)
+          ->render($post->content);
+    }
+
     // TODO: don't hardcode template name
     // also allow for more flexible archiving, such as by week/month?
     return $this->templateRenderer->render(

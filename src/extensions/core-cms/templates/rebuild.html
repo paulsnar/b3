@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav('rebuild') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Rebuild</h1>
+  <p>Click the below button to rebuild all site files.</p>
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  <form method="POST" action="?rebuild">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <button class="button form-button button--primary" type="submit">
+      Rebuild
+    </button>
+  </form>
+{% endblock %}

@@ -21,7 +21,7 @@ class BlogController extends BaseController
   public function postsAction(Request $rq): Response
   {
     $response = Rpc::getInstance()->call('b3.listPosts', [
-      'type' => 'latest',
+      'type' => 'all',
       'count' => 30,
       'cursor' => $rq->query['cursor'],
     ], $rq->attributes['auth.user']);
@@ -149,7 +149,7 @@ class BlogController extends BaseController
     CsrfService::getInstance()->reinstantiateToken($rq->form['_csrf']);
 
     $post = new Post($rq->form->pluck('title', 'content'));
-    $post->contentType = 'markdown';
+    $post->content_type = 'markdown';
 
     $phantomName = Renderer::getInstance()->buildPhantomPost($post);
     $url = Site::getInstance()->getBaseUrl() . '/' . $phantomName;
@@ -159,7 +159,8 @@ class BlogController extends BaseController
   public function postsShowAction(Request $rq): Response
   {
     if ( ! $rq->query->has('id')) {
-      throw RpcException::withData('missing_id');
+      $site = Site::getInstance();
+      return Response::redirectTo($site->getBaseUrl());
     }
 
     $id = intval($rq->query['id'], 10);
@@ -167,7 +168,24 @@ class BlogController extends BaseController
       $rq->attributes['auth.user']);
 
     $site = Site::getInstance();
-    $url = $site->getBaseUrl() . '/' . $post->getUrl();
+    $url = $site->getBaseUrl() . '/' . $post->url;
     return Response::redirectTo($url);
+  }
+
+  public function rebuildAction(Request $rq): Response
+  {
+    if ($rq->method === 'GET') {
+      return TemplateRenderer::renderResponse('rebuild.html');
+    }
+
+    if ( ! $rq->attributes['csrf.passed']) {
+      $error = 'csrf';
+      return TemplateRenderer::renderResponse('rebuild.html', compact('error'));
+    }
+
+    Rpc::getInstance()->call('b3.rebuild', [], $rq->attributes['auth.user']);
+
+    Session::setFlash('rebuilt', true);
+    return Response::redirectTo('?posts');
   }
 }

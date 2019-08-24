@@ -14,6 +14,7 @@ class CoreHandlers
     'b3.newPost' => [PostsHandler::class, 'newPost'],
     'b3.editPost' => [PostsHandler::class, 'editPost'],
     'b3.deletePost' => [PostsHandler::class, 'deletePost'],
+    'b3.rebuild' => [PostsHandler::class, 'rebuild'],
 
     'b3.checkAuth' => [UsersHandler::class, 'checkAuth'],
     'b3.login' => [UsersHandler::class, 'login'],

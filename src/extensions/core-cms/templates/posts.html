@@ -21,6 +21,11 @@
   <div class="sysmsg">
     Post <q>{{ flash('deleted_post').title }}</q> deleted.
   </div>
+  {% elseif flash('rebuilt') %}
+  <div class="sysmsg">
+    Rebuilding succeeded.
+    <a href="?posts/show">View the site now.</a>
+  </div>
   {% endif %}
 
   <div class="table-overflow-wrapper">

@@ -1,43 +1,34 @@
 <?php declare(strict_types=1);
 namespace PN\B3\Core;
-use PN\B3\Models\BaseModel;
+use PN\B3\Db\DbObject;
 
-class Post extends BaseModel
+class Post extends DbObject
 {
   protected const TABLE = 'posts';
+  protected const COLUMNS = [
+    'author_id' => 'integer',
+    'state' => 'string',
+    'slug' => 'string',
+    'title' => 'string',
+    'published_at' => 'timestamp',
+    'modified_at' => 'timestamp',
+    'content' => 'string',
+    'content_type' => 'string',
+  ];
 
   const
     STATE_DRAFT = 'draft',
     STATE_PUBLISHED = 'published',
     VALID_STATES = [self::STATE_DRAFT, self::STATE_PUBLISHED];
 
-  public
-    $authorId,
-    $state,
-    $slug,
-    $title,
-    $publishedAt,
-    $modifiedAt,
-    $content,
-    $contentType,
-    $contentRendered;
-
   public static function isValidState(string $state): bool
   {
-    return in_array($state, static::VALID_STATES);
+    return in_array($state, static::VALID_STATES, true);
   }
 
   public function getUrl(): string
   {
-    $publishedAt = new \DateTime(
-      '@' . $this->publishedAt, timezone_open('UTC'));
-
-    // TODO: don't hardcode url generation !!!
-    return $publishedAt->format('Y/m') . '/' . $this->slug;
-  }
-
-  public function getBody(): ?string
-  {
-    return $this->contentRendered;
+    // TODO: don't hardcode url generation?
+    return $this->published_at->format('Y/m') . '/' . $this->slug;
   }
 }

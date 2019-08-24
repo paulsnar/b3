@@ -12,6 +12,8 @@
   <nav class="nav">
     {{ _self.nav_icon('?posts', 'document', active_section == 'posts',
         'Posts', 'Section: posts') }}
+    {{ _self.nav_icon('?rebuild', 'edit', active_section == 'rebuild',
+        'Rebuild', 'Action: rebuild') }}
     {{ _self.nav_icon('?settings', 'cog', active_section == 'settings',
         'Settings', 'Section: settings') }}
     <span class="nav__spacer"></span>

@@ -14,6 +14,7 @@ new class extends Extension {
     'posts/delete' => [Ctrl\BlogController::class, 'postsDeleteAction'],
     'posts/preview' => [Ctrl\BlogController::class, 'postsPreviewAction'],
     'posts/show' => [Ctrl\BlogController::class, 'postsShowAction'],
+    'rebuild' => [Ctrl\BlogController::class, 'rebuildAction'],
 
     'user' => [Ctrl\UserController::class, 'userAction'],
 

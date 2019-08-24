@@ -9,12 +9,7 @@ class PostsHandler
 {
   public function listPosts(array $params, User $user): array
   {
-    $criterion = $params['type'] ?? 'latest';
-    $count = $params['count'] ?? 30;
-    $cursor = $params['cursor'] ?? null;
-
-    [$posts, $cursor] = Site::getInstance()->getPosts(
-      $criterion, $count, $cursor);
+    [$posts, $cursor] = Site::getInstance()->getPosts($params);
 
     return compact('posts', 'cursor');
   }
@@ -107,6 +102,25 @@ class PostsHandler
     $post->delete(Site::getInstance()->db);
 
     App::getInstance()->dispatchEvent('b3.posts.deleted', $post);
+    return true;
+  }
+
+  public function rebuild(array $params, User $user): bool
+  {
+    $renderer = \PN\B3\Ext\CoreRendering\Renderer::getInstance();
+
+    $renderer->buildIndexes();
+
+    $result = $this->listPosts([
+      'count' => null,
+      'type' => 'published',
+      'with_content' => true,
+    ], $user);
+    $posts = $result['posts'];
+    foreach ($posts as $post) {
+      $renderer->buildPost($post);
+    }
+
     return true;
   }
 }
