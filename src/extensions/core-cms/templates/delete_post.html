@@ -14,7 +14,8 @@
   <p style="font-style: italic">
     Note: This action is permanent and irreversible.
   </p>
-  <form method="POST" action="?posts/delete&amp;id={{ post.id }}">
+  <form method="POST" action="?posts/delete&amp;id={{ post.id }}"
+      style="display: inline-block">
     <input type="hidden" name="_csrf" value="{{ csrf() }}">
     <button class="button form-button button--primary" type="submit">Yes</button>
   </form>
