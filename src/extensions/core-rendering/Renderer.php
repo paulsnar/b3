@@ -72,6 +72,13 @@ class Renderer
     };
     $environment->addFunction(new TwigFunction('url', $url));
 
+    $coreExt = $environment->getExtension(
+      \Twig\Extension\EscaperExtension::class);
+    $escapeXml = function ($env, $string, $charset): string {
+      return htmlspecialchars($string, ENT_XML1, $charset);
+    };
+    $coreExt->setEscaper('xml', $escapeXml);
+
     return $environment;
   }
 
