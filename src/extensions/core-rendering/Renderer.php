@@ -131,11 +131,6 @@ class Renderer
 
   public function renderPost(Site $site, Post $post)
   {
-    if ($post->body === null) {
-      $post->body = RenderContext::contentRenderer($post->content_type)
-          ->render($post->content);
-    }
-
     $env = $this->getSiteEnvironment($site);
     $loader = $this->siteLoaders[$site->id];
 

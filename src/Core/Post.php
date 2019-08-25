@@ -2,6 +2,7 @@
 namespace PN\B3\Core;
 use PN\B3\Db;
 use PN\B3\Db\{DbObject, Queryable, SqlPlaceholder};
+use PN\B3\Render\Context as RenderContext;
 use function PN\B3\{array_index, array_without};
 
 class Post extends DbObject
@@ -35,16 +36,21 @@ class Post extends DbObject
     return $this->published_at->format('Y/m') . '/' . $this->slug;
   }
 
+  public function getBody(): string
+  {
+    $body = $this->attributes['body'] ?? null;
+    if ($body === null) {
+      $body = RenderContext::contentRenderer($this->content_type)
+        ->render($this->content);
+      $this->attributes['body'] = $body;
+    }
+    return $body;
+  }
+
   protected static function buildPostSelect(
     array $criteria,
     Queryable $db
   ): array {
-    $columns = ['id', 'author_id', 'site_id', 'state', 'slug', 'title',
-      'published_at', 'modified_at', 'content_type'];
-    if ($criteria['include_content'] ?? false) {
-      $columns[] = 'content';
-    }
-
     $attributes = [ ];
 
     $site = array_index($criteria, 'site_id', null);
@@ -73,7 +79,7 @@ class Post extends DbObject
       $attributes['id'] = ['not in', $fragment];
     }
 
-    [$query, $params] = static::buildSelect($attributes, $columns, $db);
+    [$query, $params] = static::buildSelect($attributes, null, $db);
     $query .= ' order by published_at desc';
 
     $limit = array_index($criteria, 'count', 30);
