@@ -108,6 +108,7 @@ class PostsHandler
     if (Post::isValidState($params['state'] ?? null)) {
       $updates['state'] = $params['state'];
     }
+    $updates['modified_at'] = time();
 
     $post->update($updates);
 

@@ -93,6 +93,7 @@ class TemplatesHandler
       throw RpcException::invalidParams(
         "'{$type}' is not a valid template type.");
     }
+    $update['modified_at'] = time();
 
     $template->update($update);
 
