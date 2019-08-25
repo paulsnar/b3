@@ -31,11 +31,10 @@ begin transaction;
   create table templates (
     id integer primary key,
     site_id integer not null,
-    type string, -- 'index'/'entry'/null
+    type string not null, -- 'index'/'entry'/'ambient'
     name string not null,
-    dependencies string, -- JSON array
-    modified_at integer,
-    content string
+    modified_at integer not null,
+    content string not null
   );
   create unique index templates_name on templates (site_id, name);
 

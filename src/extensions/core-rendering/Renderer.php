@@ -6,7 +6,7 @@ use PN\B3\Render\{Context as RenderContext, TemplateRenderer};
 use PN\B3\Templating\{TemplateLoader, Template};
 use PN\B3\Util\Singleton;
 use Twig\Environment as TwigEnvironment;
-use function PN\B3\{dir_list_files, path_join};
+use function PN\B3\{dir_list_files, file_write, path_join};
 
 class Renderer
 {
@@ -36,6 +36,22 @@ class Renderer
       $this->buildIndexes($site);
     };
     $app->addEventListener('b3.posts.deleted', $renderIndexes);
+
+    $renderTemplateIfIndex = function (Template $template) {
+      if ($template->type === Template::TYPE_INDEX) {
+        $site = Site::lookup(['id' => $template->site_id]);
+        if ($site === null) {
+          return;
+        }
+        $posts = Post::selectAll([
+          'state' => Post::STATE_PUBLISHED,
+          'site_id' => $site->id,
+        ]);
+        $this->buildIndexTemplate($site, $template, $posts);
+      }
+    };
+    $app->addEventListener('b3.templates.new', $renderTemplateIfIndex);
+    $app->addEventListener('b3.templates.edited', $renderTemplateIfIndex);
   }
 
   protected function getSiteEnvironment(Site $site): TwigEnvironment
@@ -56,7 +72,7 @@ class Renderer
 
   public function buildIndexes(Site $site)
   {
-    $env = $this->getSiteEnvironment($site);
+    $this->getSiteEnvironment($site);
     $loader = $this->siteLoaders[$site->id];
 
     $posts = Post::selectAll([
@@ -65,15 +81,24 @@ class Renderer
     ]);
 
     foreach ($loader->getAllTemplates(Template::TYPE_INDEX) as $template) {
-      $twigTemplate = $env->load($template->name);
-      $contents = $twigTemplate->render(['posts' => $posts]);
-
-      $directory = $template->getTargetDirectory();
-      if ( ! is_dir($directory)) {
-        mkdir($directory);
-      }
-      file_put_contents($template->getTargetPath(), $contents);
+      $this->buildIndexTemplate($site, $template, $posts);
     }
+  }
+
+  public function buildIndexTemplate(
+    Site $site,
+    Template $template,
+    array $posts
+  ) {
+    $twigTemplate = $this->getSiteEnvironment($site)->load($template->name);
+    $contents = $twigTemplate->render(['posts' => $posts]);
+
+    $name = $template->name;
+    if (DIRECTORY_SEPARATOR !== '/') {
+      $name = str_replace('/', DIRECTORY_SEPARATOR, $name);
+    }
+    $target = path_join($site->target_path, $name);
+    file_write($target, $contents);
   }
 
   protected function getPostTargetPath(Site $site, Post $post): string
@@ -89,22 +114,13 @@ class Renderer
   {
     $targetPath = $this->getPostTargetPath($site, $post);
     $content = $this->renderPost($site, $post);
-
-    if (strpos($targetPath, DIRECTORY_SEPARATOR) !== false) {
-      $dir = substr($targetPath, 0, strrpos($targetPath, DIRECTORY_SEPARATOR));
-      if ( ! is_dir($dir)) {
-        mkdir($dir, 0777, true);
-      }
-    }
-
-    file_put_contents($targetPath, $content);
+    file_write($targetPath, $content);
   }
 
   public function buildPhantomPost(Site $site, Post $post): string
   {
     $targetPath = path_join($site->target_path, '_preview.html');
-
-    file_put_contents($targetPath, $this->renderPost($site, $post));
+    file_write($targetPath, $this->renderPost($site, $post));
     return '_preview.html';
   }
 

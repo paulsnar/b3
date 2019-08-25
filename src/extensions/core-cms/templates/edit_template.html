@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(site_id, 'templates') }}
+{% endblock %}
+
+{% block content %}
+  <h1>
+    {% if template.id %}
+      <small>Editing template:</small> {{ template.name }}
+    {% else %}
+      New template
+    {% endif %}
+  </h1>
+  {% if flash('new_template') or updated %}
+  <div class="sysmsg">
+    Template {{ flash('new_template') ? 'created' : 'updated' }}.
+    {% if template.type == 'entry' %}
+      <a href="?rebuild&amp;site_id={{ site_id }}">Rebuild the site</a>
+      to see it in action.
+    {% elseif template.type == 'index' %}
+      <a href="{{ template_url }}">See it in action.</a>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if error %}
+    {{ include('@system/partials/error.html') }}
+  {% endif %}
+  <form method="POST" action="
+    {%- if template.id -%} ?templates/edit&amp;id={{ template.id }}
+      {%- else -%} ?templates/new&amp;site_id={{ site_id }} {%- endif %}">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <div class="form-group">
+      <label class="form-group__label" for="ff-name">Name:</label>
+      <input type="text" class="form-field" name="name" id="ff-name"
+        {%- if template.name %} value="{{ template.name }}"{% endif %}>
+      <span class="form-hint">
+        For index templates, this corresponds to the file path relative to the
+        site root where they will be placed into. For ambient templates, this
+        is the name they can be included as.
+      </span>
+    </div>
+    <div class="form-group">
+      <label class="form-group__label" for="ff-type">Template type:</label>
+      <select id="ff-type" name="type"
+          class="form-field form-field--width-auto">
+        <option value="ambient"
+          {%- if template.type == 'ambient' %} selected{% endif %}>
+            Ambient</option>
+        <option value="index"
+          {%- if template.type == 'index' %} selected{% endif %}>
+            Index</option>
+        <option value="entry"
+          {%- if template.type == 'entry' %} selected{% endif %}>
+            Entry</option>
+      </select>
+    </div>
+    <label class="form-group__label" for="ff-content">Content:</label>
+    <textarea id="ff-content" name="content"
+      style="min-height: 30em">{{ template.content }}</textarea>
+    <button class="button form-button button--primary" type="submit">
+      {{ template.id ? 'Update' : 'Create' }}
+    </button>
+  </form>
+{% endblock %}

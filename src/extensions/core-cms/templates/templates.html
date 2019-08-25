@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block nav %}
+  {% from 'nav.html' import nav %}
+  {{ nav(site_id, 'templates') }}
+{% endblock %}
+
+{% block content %}
+  <h1>Templates</h1>
+  <div class="table-overflow-wrapper">
+  <table>
+  <thead>
+    <tr><th>Name
+        <th>Type
+        <th class="table__actions">
+          <a class="button button--primary button--small"
+            href="?templates/new&amp;site_id={{ site_id }}">+ New</a>
+  </thead>
+  <tbody>
+    {% for template in templates %}
+    <tr><td>{{ template.name }}
+        <td>{{ template.type }}
+        <td class="table__actions">
+          <a class="button button--small"
+            href="?templates/edit&amp;id={{ template.id }}">edit</a>
+          <a class="button button--small"
+            href="?templates/delete&amp;id={{ template.id }}">delete</a>
+    {% else %}
+    <tr><td colspan=3>
+      No templates have been set for this site.
+      <a class="button" href="?templates/new&amp;site_id={{ site_id }}">
+        + Create a new template
+      </a>
+    {% endfor %}
+  </tbody>
+  </table>
+  </div>
+{% endblock %}

@@ -2,6 +2,7 @@
 namespace PN\B3\Db;
 use PN\B3\Db;
 use PN\B3\JsonSerializable;
+use function PN\B3\debug_dump;
 
 abstract class DbObject
 {
@@ -48,7 +49,7 @@ abstract class DbObject
       }
       $query .= implode(' and ', $whereClauses);
     }
-
+    debug_dump($query, $params);
     return [$query, $params];
   }
 

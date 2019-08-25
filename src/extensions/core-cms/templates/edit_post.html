@@ -41,7 +41,7 @@
     </div>
     <p>
       <button class="button form-button button--primary" type="submit">
-        {{ post ? 'Edit' : 'Post' }}
+        {{ post.id ? 'Edit' : 'Post' }}
       </button>
       <button class="button form-button"
           formaction="?posts/preview&amp;site_id={{ site_id }}"

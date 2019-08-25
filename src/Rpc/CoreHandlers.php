@@ -4,8 +4,8 @@ use PN\B3\Rpc;
 use PN\B3\Rpc\CoreHandlers\{
     PostsHandler,
     SitesHandler,
-    UsersHandler,
-    SettingsHandler};
+    TemplatesHandler,
+    UsersHandler};
 
 class CoreHandlers
 {
@@ -28,8 +28,11 @@ class CoreHandlers
     'b3.getUser' => [UsersHandler::class, 'getUser'],
     'b3.updateUser' => [UsersHandler::class, 'updateUser'],
 
-    'b3.getSettings' => [SettingsHandler::class, 'getSettings'],
-    'b3.updateSettings' => [SettingsHandler::class, 'updateSettings'],
+    'b3.listTemplates' => [TemplatesHandler::class, 'listTemplates'],
+    'b3.getTemplate' => [TemplatesHandler::class, 'getTemplate'],
+    'b3.newTemplate' => [TemplatesHandler::class, 'newTemplate'],
+    'b3.editTemplate' => [TemplatesHandler::class, 'editTemplate'],
+    'b3.deleteTemplate' => [TemplatesHandler::class, 'deleteTemplate'],
   ];
 
   public static function install()

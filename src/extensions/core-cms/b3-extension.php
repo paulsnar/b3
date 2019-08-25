@@ -19,6 +19,12 @@ new class extends Extension {
     'posts/show' => [Ctrl\BlogController::class, 'postsShowAction'],
     'rebuild' => [Ctrl\BlogController::class, 'rebuildAction'],
 
+    'templates' => [Ctrl\TemplateController::class, 'templatesAction'],
+    'templates/new' => [Ctrl\TemplateController::class, 'templatesNewAction'],
+    'templates/edit' => [Ctrl\TemplateController::class, 'templatesEditAction'],
+    'templates/delete' =>
+      [Ctrl\TemplateController::class, 'templatesDeleteAction'],
+
     'user' => [Ctrl\UserController::class, 'userAction'],
   ];
 

@@ -143,6 +143,28 @@ function dir_list_files(string $dir, bool $recursive = true) {
   return iter_collect(dir_iterate_files($dir, $recursive));
 }
 
+// Replace file at $target, if it exists, with a new one that contains $content.
+// Strives to guarantee atomicity, but it's not entirely foolproof. Avoid using
+// concurrently.
+function file_write(string $target, string $content) {
+  $nameStart = strrpos($target, DIRECTORY_SEPARATOR);
+  if ($nameStart !== false) {
+    $directory = substr($target, 0, $nameStart);
+    if ( ! is_dir($directory)) {
+      mkdir($directory, 0777, true);
+    }
+    $name = substr($target, $nameStart + 1);
+  } else {
+    $directory = '.';
+    $name = $target;
+  }
+
+
+  $nameTemp = '.' . $name . '.' . uniqid();
+  file_put_contents(path_join($directory, $nameTemp), $content);
+  rename(path_join($directory, $nameTemp), path_join($directory, $name));
+}
+
 function debug_print(string $format, ...$args) {
   $bt = debug_backtrace(2);
   $self = $bt[0];

@@ -9,7 +9,6 @@ class Template extends DbObject
     'site_id' => 'integer',
     'type' => 'string',
     'name' => 'string',
-    'dependencies' => 'json',
     'modified_at' => 'integer',
     'content' => 'string',
   ];
@@ -17,36 +16,11 @@ class Template extends DbObject
   const
     TYPE_INDEX = 'index',
     TYPE_ENTRY = 'entry',
-    TYPE_AMBIENT = null;
+    TYPE_AMBIENT = 'ambient',
+    VALID_TYPES = [self::TYPE_INDEX, self::TYPE_ENTRY, self::TYPE_AMBIENT];
 
-  protected const QUERY_TEMPLATE_AND_DEPENDENCIES = <<<'SQL'
-with recursive dependencies(name) as
-  (values :template_name) union
-   select td.value
-    from templates t, json_each(t.dependencies) td, dependencies d
-    where t.name = d.name)
-select t.id, t.type, t.name, t.content from templates t, dependencies d
-  where t.name = d.name
-SQL;
-
-  public static function loadWithDependencies(string $name)
+  public static function isValidType(string $type): bool
   {
-    $templates = $db->select(static::QUERY_TEMPLATE_AND_DEPENDENCIES,
-      [':template_name' => $name]);
-    return array_map(function ($template) {
-      return new static($template);
-    }, $templates);
-  }
-
-  public function getSystemName(): string
-  {
-  }
-
-  public function getTargetDirectory(): string
-  {
-  }
-
-  public function getTargetPath(): string
-  {
+    return in_array($type, self::VALID_TYPES);
   }
 }

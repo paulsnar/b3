@@ -11,7 +11,6 @@ use function PN\B3\{obj_pluck, url_join};
 
 class BlogController extends BaseController
 {
-  /** @throws RpcException */
   public function postsAction(Request $rq): Response
   {
     $siteId = $this->requireSiteId($rq);
@@ -38,7 +37,7 @@ class BlogController extends BaseController
 
     $post = $rq->form->pluck('title', 'content');
     $ctx['post'] =& $post;
-    if (Post::isValidState($rq->form['state'])) {
+    if ($rq->form->has('state') && Post::isValidState($rq->form['state'])) {
       $post['state'] = $rq->form['state'];
     }
 

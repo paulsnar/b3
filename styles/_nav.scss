@@ -9,7 +9,7 @@ $nav-hover-lighten: 10%;
 }
 
 .nav {
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 100%;
   height: $nav-size;
