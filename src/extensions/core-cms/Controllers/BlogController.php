@@ -36,9 +36,15 @@ class BlogController extends BaseController
     }
 
     $post = $rq->form->pluck('title', 'content');
+    $post['site_id'] = $siteId;
+    $post['content_type'] = 'markdown';
     $ctx['post'] =& $post;
     if ($rq->form->has('state') && Post::isValidState($rq->form['state'])) {
       $post['state'] = $rq->form['state'];
+    }
+
+    if (trim($rq->form->get('slug', '')) !== '') {
+      $post['slug'] = $rq->form['slug'];
     }
 
     if ( ! $rq->attributes['csrf.passed']) {
@@ -47,13 +53,8 @@ class BlogController extends BaseController
     }
 
     try {
-      $post = Rpc::getInstance()->call('b3.newPost', [
-        'site_id' => $siteId,
-        'state' => $post['state'] ?? Post::STATE_DRAFT,
-        'title' => $post['title'],
-        'content' => $post['content'],
-        'content_type' => 'markdown',
-      ], $rq->attributes['auth.user']);
+      $post = Rpc::getInstance()->call('b3.newPost', $post,
+        $rq->attributes['auth.user']);
     } catch (RpcException $exc) {
       $ctx['error'] = $exc->getData();
       return TemplateRenderer::renderResponse('edit_post.html', $ctx);
@@ -82,6 +83,7 @@ class BlogController extends BaseController
 
     $post->title = $rq->form['title'];
     $post->content = $rq->form['content'];
+    $post->slug = $rq->form['slug'];
     if (Post::isValidState($rq->form['state'])) {
       $post->state = $rq->form['state'];
     }
@@ -92,7 +94,7 @@ class BlogController extends BaseController
     }
 
     try {
-      $update = obj_pluck($post, 'title', 'content', 'state');
+      $update = obj_pluck($post, 'title', 'content', 'state', 'slug');
       $update['post_id'] = $post->id;
       Rpc::getInstance()->call('b3.editPost', $update,
         $rq->attributes['auth.user']);

@@ -39,6 +39,13 @@
         </option>
       </select>
     </div>
+    <div class="form-group">
+      <label class="form-group__label" for="ff-slug">Custom slug:</label>
+      <input type="text" class="form-field" name="slug" id="ff-slug"
+        {%- if post.slug %} value="{{ post.slug }}"{% endif %}>
+      <span class="form-hint">This will affect the URL of the post. If left
+        empty, it will be inferred from the title.</span>
+    </div>
     <p>
       <button class="button form-button button--primary" type="submit">
         {{ post.id ? 'Edit' : 'Post' }}

@@ -61,29 +61,36 @@ class PostsHandler
         'site_id does not correspond to a known site.');
     }
 
-    $state = $params['state'];
+    foreach (['title', 'content'] as $field) {
+      if ( ! array_key_exists($field, $params)) {
+        throw RpcException::invalidParams("Field `{$field}` not present.");
+      }
+    }
+
+    $state = $params['state'] ?? Post::STATE_DRAFT;
     if ( ! Post::isValidState($state)) {
+      throw RpcException::invalidParams(
+        "'{$state}' is not a valid post state.");
       $state = Post::STATE_DRAFT;
+    }
+
+    $slug = $params['slug'] ?? null;
+    if ($slug === null) {
+      $slug = $params['title'];
+      $slug = preg_replace('/[^A-Za-z0-9]+/', '-', $slug);
+      $slug = strtolower($slug);
     }
 
     $post = [
       'author_id' => $user->id,
       'site_id' => $site->id,
       'state' => $state,
-      'slug' => $params['slug'] ?? 'sampleslug-' . uniqid(), // TODO
-      'title' => $params['title'] ?? null,
+      'slug' => $slug,
+      'title' => $params['title'],
       'published_at' => time(),
-      'content' => $params['content'] ?? null,
+      'content' => $params['content'],
       'content_type' => $params['content_type'] ?? 'markdown',
     ];
-
-    foreach (['title', 'slug', 'content'] as $param) {
-      if ($post[$param] === null) {
-        throw RpcException::invalidParams(
-          "Parameter `{$param}` must be provided.");
-      }
-    }
-
     $post = Post::insert($post);
 
     App::getInstance()->dispatchEvent('b3.posts.new', $site, $post);
@@ -104,7 +111,7 @@ class PostsHandler
         'The criteria provided do not match any items.');
     }
 
-    $updates = array_pluck($params, 'title', 'content');
+    $updates = array_pluck($params, 'title', 'content', 'slug');
     if (Post::isValidState($params['state'] ?? null)) {
       $updates['state'] = $params['state'];
     }
