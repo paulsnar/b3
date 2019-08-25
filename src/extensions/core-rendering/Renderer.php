@@ -5,8 +5,8 @@ use PN\B3\Core\{Post, Site};
 use PN\B3\Render\{Context as RenderContext, TemplateRenderer};
 use PN\B3\Templating\{TemplateLoader, Template};
 use PN\B3\Util\Singleton;
-use Twig\Environment as TwigEnvironment;
-use function PN\B3\{dir_list_files, file_write, path_join};
+use Twig\{Environment as TwigEnvironment, TwigFunction};
+use function PN\B3\{dir_list_files, file_write, path_join, url_join};
 
 class Renderer
 {
@@ -66,6 +66,11 @@ class Renderer
     $this->siteEnvironments[$site->id] = $environment;
 
     $environment->addGlobal('site', $site);
+
+    $url = function (string $path) use ($site): string {
+      return url_join($site->base_url, $path);
+    };
+    $environment->addFunction(new TwigFunction('url', $url));
 
     return $environment;
   }
