@@ -54,6 +54,24 @@ class Renderer
     $app->addEventListener('b3.templates.edited', $renderTemplateIfIndex);
   }
 
+  // Adapted from https://daringfireball.net/projects/mt-escapeforjson/
+  private const JSON_ESCAPABLES = [
+    // 0x00..0x1F
+    "\00" => '\\u0000', "\01" => '\\u0001', "\02" => '\\u0002',
+    "\03" => '\\u0003', "\04" => '\\u0004', "\05" => '\\u0005',
+    "\06" => '\\u0006', "\07" => '\\u0007', "\10" => '\\b',
+    "\11" => '\\t',     "\12" => '\\n',     "\13" => '\\u000b',
+    "\14" => '\\f',     "\15" => '\\r',     "\16" => '\\u000e',
+    "\17" => '\\u000f', "\20" => '\\u0010', "\21" => '\\u0011',
+    "\22" => '\\u0012', "\23" => '\\u0013', "\24" => '\\u0014',
+    "\25" => '\\u0015', "\26" => '\\u0016', "\27" => '\\u0017',
+    "\30" => '\\u0018', "\31" => '\\u0019', "\32" => '\\u001a',
+    "\33" => '\\u001b', "\34" => '\\u001c', "\35" => '\\u001d',
+    "\36" => '\\u001e', "\37" => '\\u001f',
+
+    '"' => '\\"', '\\' => '\\\\',
+  ];
+
   protected function getSiteEnvironment(Site $site): TwigEnvironment
   {
     if (array_key_exists($site->id, $this->siteEnvironments)) {
@@ -72,12 +90,28 @@ class Renderer
     };
     $environment->addFunction(new TwigFunction('url', $url));
 
-    $coreExt = $environment->getExtension(
+    $escaperExt = $environment->getExtension(
       \Twig\Extension\EscaperExtension::class);
     $escapeXml = function ($env, $string, $charset): string {
       return htmlspecialchars($string, ENT_XML1, $charset);
     };
-    $coreExt->setEscaper('xml', $escapeXml);
+    $escaperExt->setEscaper('xml', $escapeXml);
+
+    // Adapted from https://daringfireball.net/projects/mt-escapeforjson/
+    $escapeJson = function ($env, $string, $charset): string {
+      if ($charset !== 'UTF-8') {
+        throw new \RuntimeException('Please use UTF-8');
+      }
+      $string = strtr($string, self::JSON_ESCAPABLES);
+      // strtr recommends having all keys be same length; these are longer
+      // as they need multiple UTF-8 bytes to encode them
+      $string = strtr($string, [
+        "\u{2028}" => '\\u2028',
+        "\u{2029}" => '\\u2029',
+      ]);
+      return $string;
+    };
+    $escaperExt->setEscaper('json', $escapeJson);
 
     return $environment;
   }
