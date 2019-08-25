@@ -27,3 +27,7 @@ a:focus {
   height: 1em;
   &:before { content: ' '; }
 }
+
+textarea {
+  resize: vertical;
+}
