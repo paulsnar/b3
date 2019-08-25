@@ -23,7 +23,11 @@ class PostsHandler
     $cursor = null;
     if ($posts !== [ ]) {
       $cursor = $posts[count($posts) - 1]->published_at->getTimestamp();
-      $hasMore = Post::exists(['published_at' => ['<', $cursor]]);
+      $hasMore = Post::exists([
+        'site_id' => $site,
+        'state' => array_index($params, 'state', Post::STATE_PUBLISHED),
+        'published_at' => ['<', $cursor],
+      ]);
       if ( ! $hasMore) {
         $cursor = null;
       }
