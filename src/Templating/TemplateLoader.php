@@ -39,7 +39,7 @@ class TemplateLoader implements LoaderInterface
       [':site_id' => $this->siteId, ':name' => $name]);
     if ($content === null) {
       throw new \RuntimeException(
-        "Template not found: {$name} for site {$this->sideId}");
+        "Template not found: {$name} for site {$this->siteId}");
     }
     return new Source($content['content'], $name);
   }
@@ -50,7 +50,7 @@ class TemplateLoader implements LoaderInterface
       [':name' => $name]);
     if ($id === null) {
       throw new \RuntimeException(
-        "Template not found: {$name} for site {$this->sideId}");
+        "Template not found: {$name} for site {$this->siteId}");
     }
 
     return (string) $id['id'];
