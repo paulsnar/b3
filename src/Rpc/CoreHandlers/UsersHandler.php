@@ -4,7 +4,7 @@ use PN\B3\Config;
 use PN\B3\Core\User;
 use PN\B3\Rpc\{OptionalAuthenticationAware, RpcException};
 use PN\B3\Services\SecurityService;
-use function PN\B3\{array_pluck, debug_print};
+use function PN\B3\array_pluck;
 
 class UsersHandler implements OptionalAuthenticationAware
 {
